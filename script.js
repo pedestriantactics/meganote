@@ -8,7 +8,8 @@ class SignboardApp {
                 {
                     id: 0,
                     text: 'edit me',
-                    fontSize: 48,
+                    fontSize: 128,
+                    fontWeight: 80,
                     letterSpacing: 0
                 }
             ],
@@ -40,8 +41,12 @@ class SignboardApp {
             this.updateCurrentFrame({ fontSize: parseInt(e.target.value) });
         });
         
+        document.getElementById('fontWeightSlider').addEventListener('input', (e) => {
+            this.updateCurrentFrame({ fontWeight: parseInt(e.target.value) });
+        });
+        
         document.getElementById('letterSpacingSlider').addEventListener('input', (e) => {
-            this.updateCurrentFrame({ letterSpacing: parseInt(e.target.value) });
+            this.updateCurrentFrame({ letterSpacing: parseFloat(e.target.value) });
         });
         
         document.getElementById('editText').addEventListener('input', (e) => {
@@ -51,6 +56,7 @@ class SignboardApp {
         // Frames overlay
         document.getElementById('closeFramesBtn').addEventListener('click', () => this.closeFrames());
         document.getElementById('addFrameBtn').addEventListener('click', () => this.addFrame());
+        document.getElementById('resetCacheBtn').addEventListener('click', () => this.resetCache());
         document.getElementById('frameDelay').addEventListener('input', (e) => {
             this.updateFrameDelay(parseFloat(e.target.value));
         });
@@ -67,6 +73,12 @@ class SignboardApp {
                     isEditing: false,
                     isPlaying: false
                 };
+                
+                // Migrate existing frames to include fontWeight if missing
+                this.state.frames = this.state.frames.map(frame => ({
+                    ...frame,
+                    fontWeight: frame.fontWeight || 80
+                }));
             }
         } catch (error) {
             console.error('Failed to load state:', error);
@@ -78,6 +90,48 @@ class SignboardApp {
             localStorage.setItem(this.storageKey, JSON.stringify(this.state));
         } catch (error) {
             console.error('Failed to save state:', error);
+        }
+    }
+    
+    resetCache() {
+        if (confirm('Are you sure you want to reset the app? This will delete all frames and settings.')) {
+            try {
+                localStorage.removeItem(this.storageKey);
+                
+                // Reset to initial state
+                this.state = {
+                    isEditing: false,
+                    isPlaying: false,
+                    currentFrameIndex: 0,
+                    frames: [
+                        {
+                            id: 0,
+                            text: 'edit me',
+                            fontSize: 128,
+                            fontWeight: 80,
+                            letterSpacing: 0
+                        }
+                    ],
+                    frameDelay: 1
+                };
+                
+                // Stop any playback
+                if (this.playbackInterval) {
+                    clearInterval(this.playbackInterval);
+                    this.playbackInterval = null;
+                }
+                
+                // Update the display and controls
+                this.updateDisplay();
+                this.updateControls();
+                this.updateFramesList();
+                
+                // Close frames overlay if open
+                this.closeFrames();
+                
+            } catch (error) {
+                console.error('Failed to reset cache:', error);
+            }
         }
     }
     
@@ -103,8 +157,9 @@ class SignboardApp {
         
         // Update styles
         const style = {
-            fontSize: `${frame.fontSize}px`,
-            letterSpacing: `${frame.letterSpacing}px`
+            fontSize: `${frame.fontSize}pt`,
+            fontWeight: frame.fontWeight,
+            letterSpacing: `${frame.letterSpacing}em`
         };
         
         Object.assign(displayText.style, style);
@@ -117,6 +172,8 @@ class SignboardApp {
         // Update sliders
         document.getElementById('fontSizeSlider').value = frame.fontSize;
         document.getElementById('fontSizeValue').textContent = frame.fontSize;
+        document.getElementById('fontWeightSlider').value = frame.fontWeight;
+        document.getElementById('fontWeightValue').textContent = frame.fontWeight;
         document.getElementById('letterSpacingSlider').value = frame.letterSpacing;
         document.getElementById('letterSpacingValue').textContent = frame.letterSpacing;
     }
@@ -189,7 +246,7 @@ class SignboardApp {
             frameItem.innerHTML = `
                 <div class="frame-item-header">
                     <div class="frame-title">Frame ${index + 1}</div>
-                    ${this.state.frames.length > 1 ? `<button class="delete-frame-btn" onclick="event.stopPropagation(); app.deleteFrame(${frame.id})">Delete</button>` : ''}
+                    ${this.state.frames.length > 1 ? `<button class="btn delete-frame-btn" onclick="event.stopPropagation(); app.deleteFrame(${frame.id})">Delete</button>` : ''}
                 </div>
                 <div class="frame-preview">${frame.text || 'Empty frame'}</div>
                 <div class="frame-details">Size: ${frame.fontSize}px, Spacing: ${frame.letterSpacing}px</div>
@@ -211,6 +268,7 @@ class SignboardApp {
             id: Date.now(),
             text: currentFrame.text,
             fontSize: currentFrame.fontSize,
+            fontWeight: currentFrame.fontWeight,
             letterSpacing: currentFrame.letterSpacing
         };
         

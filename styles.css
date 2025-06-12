@@ -1,14 +1,32 @@
 /* ========================================
+   Font Face Declarations
+   ======================================== */
+@font-face {
+    font-family: "Hyperwalk VF";
+    src:
+        url("fonts/HyperwalkVF.woff2") format("woff2"),
+        url("fonts/HyperwalkVF.woff") format("woff"),
+        url("fonts/HyperwalkVF.ttf") format("ttf");
+}
+@font-face {
+    font-family: "Hyperwalk Mono VF";
+    src:
+        url("fonts/HyperwalkMonoVF.woff2") format("woff2"),
+        url("fonts/HyperwalkMonoVF.woff") format("woff"),
+        url("fonts/HyperwalkMonoVF.ttf") format("ttf");
+}
+
+/* ========================================
    CSS Variables
    ======================================== */
 :root {
     --color-black: #000000;
     --color-white: #ffffff;
-    --color-accent: #ff0000;
-    --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-display: Georgia, serif;
-    --font-size-base: 16px;
-    --spacing-page: 2rem;
+    --color-highlight: #ff0000;
+    --font-ui: "Hyperwalk VF", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-display: "Hyperwalk VF", Georgia, serif;
+    --font-size-base: 14pt;
+    --spacing-page: 1rem;
     --spacing-vertical: 1rem;
 }
 
@@ -21,12 +39,20 @@
     animation: none !important;
 }
 
+.mono {
+    font-family: "Hyperwalk Mono VF", monospace;
+}
+
 body {
     font-family: var(--font-ui);
+    font-weight: 60;
     font-size: var(--font-size-base);
+    letter-spacing: 0.04em;
     background-color: var(--color-black);
     color: var(--color-white);
     overflow: hidden;
+    margin: 0;
+    padding: 0;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
@@ -69,6 +95,7 @@ body {
    ======================================== */
 .display-text {
     font-family: var(--font-display);
+    font-weight: 80;
     word-break: break-word;
     line-height: 1.2;
     cursor: default;
@@ -77,6 +104,7 @@ body {
 
 .edit-text {
     font-family: var(--font-display);
+    font-weight: 80;
     background: transparent;
     border: none;
     outline: none;
@@ -91,24 +119,31 @@ body {
 /* ========================================
    Control Buttons
    ======================================== */
+.btn {
+    font-family: var(--font-ui);
+    font-weight: 60;
+    font-size: var(--font-size-base);
+    letter-spacing: 0.04em;
+    padding: .2rem .2rem 0rem .3rem;
+    background: none;
+    border: 1px solid var(--color-white);
+    color: var(--color-white);
+    cursor: pointer;
+}
+
 .controls {
     position: fixed;
     top: var(--spacing-page);
     right: var(--spacing-page);
     display: flex;
     flex-direction: column;
+    align-items: flex-end;
     gap: 0.5em;
     z-index: 50;
 }
 
 .control-btn {
-    background-color: var(--color-black);
-    color: var(--color-white);
-    border: 1px solid var(--color-white);
-    cursor: pointer;
-    padding: 0.5em 1em;
-    font-size: 1rem;
-    font-family: var(--font-ui);
+    /* Inherits from .btn */
 }
 
 /* ========================================
@@ -149,28 +184,36 @@ body {
 }
 
 .slider {
+    appearance: none;
+    height: 1px;
+    border-radius: 0;
     width: 100%;
-    height: 6px;
-    background: var(--color-white);
     outline: none;
-    -webkit-appearance: none;
+    background-color: var(--color-white);
+    margin: 0;
+    padding: 0;
+    margin-bottom: 1rem;
 }
 
 .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
     appearance: none;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     background: var(--color-black);
+    outline: 1px solid var(--color-white);
+    border-radius: 100%;
     cursor: pointer;
-    border: 2px solid var(--color-white);
 }
 
 .slider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     background: var(--color-black);
+    outline: 1px solid var(--color-white);
+    border-radius: 100%;
     cursor: pointer;
-    border: 2px solid var(--color-white);
+    border: none;
 }
 
 /* ========================================
@@ -200,13 +243,7 @@ body {
 }
 
 .close-btn {
-    background-color: var(--color-black);
-    color: var(--color-white);
-    border: 1px solid var(--color-white);
-    cursor: pointer;
-    padding: 0.5em 1em;
-    font-size: 1rem;
-    font-family: var(--font-ui);
+    /* Inherits from .btn */
 }
 
 .frames-content {
@@ -265,13 +302,7 @@ body {
 }
 
 .add-frame-btn {
-    background-color: var(--color-black);
-    color: var(--color-white);
-    border: 1px solid var(--color-white);
-    cursor: pointer;
-    padding: 0.5em 1em;
-    font-size: 1rem;
-    font-family: var(--font-ui);
+    /* Inherits from .btn */
 }
 
 .add-frame-btn:disabled {
@@ -294,7 +325,7 @@ body {
 }
 
 .frame-item.selected {
-    border-color: var(--color-accent);
+    border-color: var(--color-highlight);
 }
 
 .frame-item-header {
@@ -310,27 +341,15 @@ body {
 }
 
 .delete-frame-btn {
-    background-color: var(--color-black);
-    color: var(--color-white);
-    border: 1px solid var(--color-white);
-    cursor: pointer;
-    padding: 0.25em 0.5em;
-    font-size: 1rem;
-    font-family: var(--font-ui);
+    /* Inherits from .btn */
 }
 
-.frame-preview {
-    font-size: 1rem;
-    font-family: var(--font-ui);
-    margin-bottom: 0.25em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.frame-details {
-    font-size: 1rem;
-    font-family: var(--font-ui);
+.reset-cache-btn {
+    /* Inherits from .btn */
+    position: fixed;
+    bottom: var(--spacing-page);
+    left: var(--spacing-page);
+    z-index: 110;
 }
 
 /* ========================================
