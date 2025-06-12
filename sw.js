@@ -1,12 +1,9 @@
 const CACHE_NAME = 'signboard-v1';
 const urlsToCache = [
   '/',
-  '/index.html',
   '/styles.css',
   '/script.js',
-  '/manifest.json',
-  '/icon-192.svg',
-  '/icon-512.svg'
+  '/manifest.json'
 ];
 
 // Install event - cache resources

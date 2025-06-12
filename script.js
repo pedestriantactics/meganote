@@ -123,19 +123,19 @@ class SignboardApp {
     
     updateControls() {
         // Update frame button
-        document.getElementById('frameBtn').textContent = this.state.currentFrameIndex + 1;
+        document.getElementById('frameBtn').textContent = `Frame ${this.state.currentFrameIndex + 1}`;
         
         // Show/hide play button
         const playBtn = document.getElementById('playBtn');
         if (this.state.frames.length > 1) {
-            playBtn.style.display = 'flex';
-            playBtn.textContent = this.state.isPlaying ? '⏸️' : '▶️';
+            playBtn.style.display = 'block';
+            playBtn.textContent = this.state.isPlaying ? 'Pause' : 'Play';
         } else {
             playBtn.style.display = 'none';
         }
         
         // Update edit button
-        document.getElementById('editBtn').textContent = this.state.isEditing ? '✅' : '✏️';
+        document.getElementById('editBtn').textContent = this.state.isEditing ? 'Save' : 'Edit';
     }
     
     toggleEdit() {
@@ -189,7 +189,7 @@ class SignboardApp {
             frameItem.innerHTML = `
                 <div class="frame-item-header">
                     <div class="frame-title">Frame ${index + 1}</div>
-                    ${this.state.frames.length > 1 ? `<button class="delete-frame-btn" onclick="event.stopPropagation(); app.deleteFrame(${frame.id})">🗑️</button>` : ''}
+                    ${this.state.frames.length > 1 ? `<button class="delete-frame-btn" onclick="event.stopPropagation(); app.deleteFrame(${frame.id})">Delete</button>` : ''}
                 </div>
                 <div class="frame-preview">${frame.text || 'Empty frame'}</div>
                 <div class="frame-details">Size: ${frame.fontSize}px, Spacing: ${frame.letterSpacing}px</div>

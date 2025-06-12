@@ -6,7 +6,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Digital Signboard">
-    <meta name="theme-color" content="#007AFF">
     <title>Digital Signboard</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.svg">
@@ -26,9 +25,9 @@
 
         <!-- Control Buttons -->
         <div id="controls" class="controls">
-            <button id="editBtn" class="control-btn edit-btn" title="Edit text">✏️</button>
-            <button id="frameBtn" class="control-btn frame-btn" title="Open frames">1</button>
-            <button id="playBtn" class="control-btn play-btn" title="Play animation" style="display: none;">▶️</button>
+            <button id="editBtn" class="control-btn" title="Edit text">Edit</button>
+            <button id="frameBtn" class="control-btn" title="Open frames">Frame 1</button>
+            <button id="playBtn" class="control-btn" title="Play animation" style="display: none;">Play</button>
         </div>
 
         <!-- Edit Controls -->
@@ -49,7 +48,7 @@
         <div id="framesOverlay" class="frames-overlay" style="display: none;">
             <div class="frames-header">
                 <h2>Animation Frames</h2>
-                <button id="closeFramesBtn" class="close-btn">❌</button>
+                <button id="closeFramesBtn" class="close-btn">Close</button>
             </div>
             <div class="frames-content">
                 <div class="frame-delay-section">
@@ -60,7 +59,7 @@
                 <div class="frames-section">
                     <div class="frames-header-row">
                         <label>Frames</label>
-                        <button id="addFrameBtn" class="add-frame-btn">➕ Add Frame</button>
+                        <button id="addFrameBtn" class="add-frame-btn">Add Frame</button>
                     </div>
                     <div id="framesList" class="frames-list">
                         <!-- Frames will be populated here -->
@@ -72,18 +71,18 @@
 
     <script src="script.js"></script>
     <script>
-        // Register service worker in production only
-        if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then((registration) => {
-                        console.log('SW registered: ', registration);
-                    })
-                    .catch((registrationError) => {
-                        console.log('SW registration failed: ', registrationError);
-                    });
-            });
-        }
+        // Service worker disabled for development
+        // if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
+        //     window.addEventListener('load', () => {
+        //         navigator.serviceWorker.register('sw.js')
+        //             .then((registration) => {
+        //                 console.log('SW registered: ', registration);
+        //             })
+        //             .catch((registrationError) => {
+        //                 console.log('SW registration failed: ', registrationError);
+        //             });
+        //     });
+        // }
     </script>
 </body>
 </html>
