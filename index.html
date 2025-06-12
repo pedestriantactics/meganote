@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Digital Signboard">
+    <meta name="theme-color" content="#007AFF">
+    <title>Digital Signboard</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.svg">
+    <meta name="description" content="Create custom digital signboards with multi-frame text display and offline functionality">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Main Display -->
+        <div id="mainDisplay" class="main-display">
+            <div id="textArea" class="text-area">
+                <div id="displayText" class="display-text">edit me</div>
+                <textarea id="editText" class="edit-text" style="display: none;">edit me</textarea>
+            </div>
+        </div>
+
+        <!-- Control Buttons -->
+        <div id="controls" class="controls">
+            <button id="editBtn" class="control-btn edit-btn" title="Edit text">✏️</button>
+            <button id="frameBtn" class="control-btn frame-btn" title="Open frames">1</button>
+            <button id="playBtn" class="control-btn play-btn" title="Play animation" style="display: none;">▶️</button>
+        </div>
+
+        <!-- Edit Controls -->
+        <div id="editControls" class="edit-controls" style="display: none;">
+            <div class="edit-panel">
+                <div class="slider-group">
+                    <label>Size: <span id="fontSizeValue">48</span>px</label>
+                    <input type="range" id="fontSizeSlider" min="16" max="120" value="48" class="slider">
+                </div>
+                <div class="slider-group">
+                    <label>Spacing: <span id="letterSpacingValue">0</span>px</label>
+                    <input type="range" id="letterSpacingSlider" min="-5" max="20" value="0" class="slider">
+                </div>
+            </div>
+        </div>
+
+        <!-- Frames Overlay -->
+        <div id="framesOverlay" class="frames-overlay" style="display: none;">
+            <div class="frames-header">
+                <h2>Animation Frames</h2>
+                <button id="closeFramesBtn" class="close-btn">❌</button>
+            </div>
+            <div class="frames-content">
+                <div class="frame-delay-section">
+                    <label for="frameDelay">Seconds between frames</label>
+                    <input type="number" id="frameDelay" min="0.5" max="10" step="0.5" value="1" class="delay-input">
+                </div>
+                
+                <div class="frames-section">
+                    <div class="frames-header-row">
+                        <label>Frames</label>
+                        <button id="addFrameBtn" class="add-frame-btn">➕ Add Frame</button>
+                    </div>
+                    <div id="framesList" class="frames-list">
+                        <!-- Frames will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Register service worker in production only
+        if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
