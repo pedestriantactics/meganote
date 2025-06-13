@@ -1,387 +1,387 @@
 class SignboardApp {
-    constructor() {
-        this.state = {
-            isEditing: false,
-            isPlaying: false,
-            currentFrameIndex: 0,
-            frames: [
-                {
-                    id: 0,
-                    text: 'edit me',
-                    fontSize: 128,
-                    fontWeight: 80,
-                    letterSpacing: 0
-                }
-            ],
-            frameDelay: 1
-        };
-        
-        this.maxFrames = 5;
-        this.playbackInterval = null;
-        this.storageKey = 'signboardState';
-        
-        this.init();
-    }
-    
-    init() {
-        this.loadState();
-        this.bindEvents();
-        this.updateDisplay();
-        this.updateControls();
-    }
-    
-    bindEvents() {
-        // Control buttons
-        document.getElementById('editBtn').addEventListener('click', () => this.toggleEdit());
-        document.getElementById('settingsBtn').addEventListener('click', () => this.openFrames());
-        document.getElementById('playBtn').addEventListener('click', () => this.togglePlayback());
-        
-        // Edit controls
-        document.getElementById('fontSizeSlider').addEventListener('input', (e) => {
-            this.updateCurrentFrame({ fontSize: parseInt(e.target.value) });
-        });
-        
-        document.getElementById('fontWeightSlider').addEventListener('input', (e) => {
-            this.updateCurrentFrame({ fontWeight: parseInt(e.target.value) });
-        });
-        
-        document.getElementById('letterSpacingSlider').addEventListener('input', (e) => {
-            this.updateCurrentFrame({ letterSpacing: parseFloat(e.target.value) });
-        });
-        
-        // Remove automatic text updates - only save when edit button is pressed
-        // document.getElementById('textContent').addEventListener('input', (e) => {
-        //     // Text updates now happen only when save button is pressed
-        // });
-        
-        // Frames overlay
-        document.getElementById('closeFramesBtn').addEventListener('click', () => this.closeFrames());
-        document.getElementById('addFrameBtn').addEventListener('click', () => this.addFrame());
-        document.getElementById('resetCacheBtn').addEventListener('click', () => this.resetCache());
-        document.getElementById('frameDelay').addEventListener('input', (e) => {
-            this.updateFrameDelay(parseFloat(e.target.value));
-        });
-    }
-    
-    loadState() {
-        try {
-            const saved = localStorage.getItem(this.storageKey);
-            if (saved) {
-                const parsedState = JSON.parse(saved);
-                this.state = {
-                    ...this.state,
-                    ...parsedState,
-                    isEditing: false,
-                    isPlaying: false
-                };
-                
-                // Migrate existing frames to include fontWeight if missing
-                this.state.frames = this.state.frames.map(frame => ({
-                    ...frame,
-                    fontWeight: frame.fontWeight || 80
-                }));
-            }
-        } catch (error) {
-            console.error('Failed to load state:', error);
-        }
-    }
-    
-    saveState() {
-        try {
-            localStorage.setItem(this.storageKey, JSON.stringify(this.state));
-        } catch (error) {
-            console.error('Failed to save state:', error);
-        }
-    }
-    
-    resetCache() {
-        console.log('Reset cache button clicked');
-        
-        // For debugging, let's also try without confirm dialog
-        const skipConfirm = true; // Set to true to skip confirmation
-        let userConfirmed = skipConfirm;
-        
-        if (!skipConfirm) {
-            userConfirmed = confirm('Are you sure you want to reset the app? This will delete all frames and settings.');
-        }
-        
-        console.log('Confirm dialog result:', userConfirmed);
-        
-        if (userConfirmed) {
-            console.log('User confirmed reset');
-            try {
-                localStorage.removeItem(this.storageKey);
-                
-                // Reset to initial state
-                this.state = {
-                    isEditing: false,
-                    isPlaying: false,
-                    currentFrameIndex: 0,
-                    frames: [
-                        {
-                            id: 0,
-                            text: 'edit me',
-                            fontSize: 128,
-                            fontWeight: 80,
-                            letterSpacing: 0
-                        }
-                    ],
-                    frameDelay: 1
-                };
-                
-                // Stop any playback
-                if (this.playbackInterval) {
-                    clearInterval(this.playbackInterval);
-                    this.playbackInterval = null;
-                }
-                
-                // Update the display and controls
-                this.updateDisplay();
-                this.updateControls();
-                this.updateFramesList();
-                
-                // Close frames overlay if open
-                this.closeFrames();
-                
-                console.log('Reset cache completed successfully');
-                
-            } catch (error) {
-                console.error('Failed to reset cache:', error);
-            }
-        } else {
-            console.log('User cancelled reset');
-        }
-    }
-    
-    getCurrentFrame() {
-        return this.state.frames[this.state.currentFrameIndex] || this.state.frames[0];
-    }
-    
-    updateCurrentFrame(updates) {
-        const frame = this.getCurrentFrame();
-        Object.assign(frame, updates);
-        
-        // Only update display if we're not editing text, or if it's a style change
-        if (!this.state.isEditing || !updates.hasOwnProperty('text')) {
-            this.updateDisplay();
-        }
-        
-        this.saveState();
-    }
-    
-    updateDisplay() {
-        const frame = this.getCurrentFrame();
-        const textContent = document.getElementById('textContent');
-        
-        // Only update text content if not currently editing to avoid cursor repositioning
-        if (!this.state.isEditing) {
-            textContent.innerText = frame.text;
-        }
-        
-        // Update styles (always safe to update these)
-        const style = {
-            fontSize: `${frame.fontSize}pt`,
-            fontWeight: frame.fontWeight,
-            letterSpacing: `${frame.letterSpacing}em`
-        };
-        
-        Object.assign(textContent.style, style);
-        
-        // Update sliders
-        document.getElementById('fontSizeSlider').value = frame.fontSize;
-        document.getElementById('fontSizeValue').textContent = frame.fontSize;
-        document.getElementById('fontWeightSlider').value = frame.fontWeight;
-        document.getElementById('fontWeightValue').textContent = frame.fontWeight;
-        document.getElementById('letterSpacingSlider').value = frame.letterSpacing;
-        document.getElementById('letterSpacingValue').textContent = frame.letterSpacing;
-    }
-    
-    updateControls() {
-        // Update frame counter
-        document.getElementById('frameCounter').textContent = `${this.state.currentFrameIndex + 1}`;
-        
-        // Show/hide play button (only if multiple frames AND not editing)
-        const playBtn = document.getElementById('playBtn');
-        if (this.state.frames.length > 1 && !this.state.isEditing) {
-            playBtn.style.display = 'block';
-            playBtn.textContent = this.state.isPlaying ? '\uE019' : '\uE018';
-        } else {
-            playBtn.style.display = 'none';
-        }
-        
-        // Show/hide settings button (hide when editing)
-        const settingsBtn = document.getElementById('settingsBtn');
-        if (this.state.isEditing) {
-            settingsBtn.style.display = 'none';
-        } else {
-            settingsBtn.style.display = 'block';
-        }
-        
-        // Update edit button
+	constructor() {
+		this.state = {
+			isEditing: false,
+			isPlaying: false,
+			currentFrameIndex: 0,
+			frames: [
+				{
+					id: 0,
+					text: 'MegaNote',
+					fontSize: 120,
+					fontWeight: 120,
+					letterSpacing: -.07
+				}
+			],
+			frameDelay: 1
+		};
+
+		this.maxFrames = 5;
+		this.playbackInterval = null;
+		this.storageKey = 'signboardState';
+
+		this.init();
+	}
+
+	init() {
+		this.loadState();
+		this.bindEvents();
+		this.updateDisplay();
+		this.updateControls();
+	}
+
+	bindEvents() {
+		// Control buttons
+		document.getElementById('editBtn').addEventListener('click', () => this.toggleEdit());
+		document.getElementById('settingsBtn').addEventListener('click', () => this.openFrames());
+		document.getElementById('playBtn').addEventListener('click', () => this.togglePlayback());
+
+		// Edit controls
+		document.getElementById('fontSizeSlider').addEventListener('input', (e) => {
+			this.updateCurrentFrame({ fontSize: parseInt(e.target.value) });
+		});
+
+		document.getElementById('fontWeightSlider').addEventListener('input', (e) => {
+			this.updateCurrentFrame({ fontWeight: parseInt(e.target.value) });
+		});
+
+		document.getElementById('letterSpacingSlider').addEventListener('input', (e) => {
+			this.updateCurrentFrame({ letterSpacing: parseFloat(e.target.value) });
+		});
+
+		// Remove automatic text updates - only save when edit button is pressed
+		// document.getElementById('textContent').addEventListener('input', (e) => {
+		//     // Text updates now happen only when save button is pressed
+		// });
+
+		// Frames overlay
+		document.getElementById('closeFramesBtn').addEventListener('click', () => this.closeFrames());
+		document.getElementById('addFrameBtn').addEventListener('click', () => this.addFrame());
+		document.getElementById('resetCacheBtn').addEventListener('click', () => this.resetCache());
+		document.getElementById('frameDelay').addEventListener('input', (e) => {
+			this.updateFrameDelay(parseFloat(e.target.value));
+		});
+	}
+
+	loadState() {
+		try {
+			const saved = localStorage.getItem(this.storageKey);
+			if (saved) {
+				const parsedState = JSON.parse(saved);
+				this.state = {
+					...this.state,
+					...parsedState,
+					isEditing: false,
+					isPlaying: false
+				};
+
+				// Migrate existing frames to include fontWeight if missing
+				this.state.frames = this.state.frames.map(frame => ({
+					...frame,
+					fontWeight: frame.fontWeight || 80
+				}));
+			}
+		} catch (error) {
+			console.error('Failed to load state:', error);
+		}
+	}
+
+	saveState() {
+		try {
+			localStorage.setItem(this.storageKey, JSON.stringify(this.state));
+		} catch (error) {
+			console.error('Failed to save state:', error);
+		}
+	}
+
+	resetCache() {
+		console.log('Reset cache button clicked');
+
+		// For debugging, let's also try without confirm dialog
+		const skipConfirm = true; // Set to true to skip confirmation
+		let userConfirmed = skipConfirm;
+
+		if (!skipConfirm) {
+			userConfirmed = confirm('Are you sure you want to reset the app? This will delete all frames and settings.');
+		}
+
+		console.log('Confirm dialog result:', userConfirmed);
+
+		if (userConfirmed) {
+			console.log('User confirmed reset');
+			try {
+				localStorage.removeItem(this.storageKey);
+
+				// Reset to initial state
+				this.state = {
+					isEditing: false,
+					isPlaying: false,
+					currentFrameIndex: 0,
+					frames: [
+						{
+							id: 0,
+							text: 'MegaNote',
+							fontSize: 120,
+							fontWeight: 120,
+							letterSpacing: -.07
+						}
+					],
+					frameDelay: 1
+				};
+
+				// Stop any playback
+				if (this.playbackInterval) {
+					clearInterval(this.playbackInterval);
+					this.playbackInterval = null;
+				}
+
+				// Update the display and controls
+				this.updateDisplay();
+				this.updateControls();
+				this.updateFramesList();
+
+				// Close frames overlay if open
+				this.closeFrames();
+
+				console.log('Reset cache completed successfully');
+
+			} catch (error) {
+				console.error('Failed to reset cache:', error);
+			}
+		} else {
+			console.log('User cancelled reset');
+		}
+	}
+
+	getCurrentFrame() {
+		return this.state.frames[this.state.currentFrameIndex] || this.state.frames[0];
+	}
+
+	updateCurrentFrame(updates) {
+		const frame = this.getCurrentFrame();
+		Object.assign(frame, updates);
+
+		// Only update display if we're not editing text, or if it's a style change
+		if (!this.state.isEditing || !updates.hasOwnProperty('text')) {
+			this.updateDisplay();
+		}
+
+		this.saveState();
+	}
+
+	updateDisplay() {
+		const frame = this.getCurrentFrame();
+		const textContent = document.getElementById('textContent');
+
+		// Only update text content if not currently editing to avoid cursor repositioning
+		if (!this.state.isEditing) {
+			textContent.innerText = frame.text;
+		}
+
+		// Update styles (always safe to update these)
+		const style = {
+			fontSize: `${frame.fontSize}pt`,
+			fontWeight: frame.fontWeight,
+			letterSpacing: `${frame.letterSpacing}em`
+		};
+
+		Object.assign(textContent.style, style);
+
+		// Update sliders
+		document.getElementById('fontSizeSlider').value = frame.fontSize;
+		document.getElementById('fontSizeValue').textContent = frame.fontSize;
+		document.getElementById('fontWeightSlider').value = frame.fontWeight;
+		document.getElementById('fontWeightValue').textContent = frame.fontWeight;
+		document.getElementById('letterSpacingSlider').value = frame.letterSpacing;
+		document.getElementById('letterSpacingValue').textContent = frame.letterSpacing;
+	}
+
+	updateControls() {
+		// Update frame counter
+		document.getElementById('frameCounter').textContent = `${this.state.currentFrameIndex + 1}`;
+
+		// Show/hide play button (only if multiple frames AND not editing)
+		const playBtn = document.getElementById('playBtn');
+		if (this.state.frames.length > 1 && !this.state.isEditing) {
+			playBtn.style.display = 'block';
+			playBtn.textContent = this.state.isPlaying ? '\uE019' : '\uE018';
+		} else {
+			playBtn.style.display = 'none';
+		}
+
+		// Show/hide settings button (hide when editing)
+		const settingsBtn = document.getElementById('settingsBtn');
+		if (this.state.isEditing) {
+			settingsBtn.style.display = 'none';
+		} else {
+			settingsBtn.style.display = 'block';
+		}
+
+		// Update edit button
 		document.getElementById('editBtn').textContent = this.state.isEditing ? '\uE001' : '\uE008';
-    }
-    
-    toggleEdit() {
-        this.state.isEditing = !this.state.isEditing;
-        
-        if (this.state.isEditing && this.state.isPlaying) {
-            this.stopPlayback();
-        }
-        
-        // Toggle edit controls and contenteditable
-        const textContent = document.getElementById('textContent');
-        const editControls = document.getElementById('editControls');
-        
-        if (this.state.isEditing) {
-            textContent.contentEditable = 'true';
-            editControls.style.display = 'block';
-            textContent.focus();
-            // Select all text for easier editing
-            const range = document.createRange();
-            range.selectNodeContents(textContent);
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-        } else {
-            // Save the text when exiting edit mode
-            this.updateCurrentFrame({ text: textContent.innerText });
-            
-            textContent.contentEditable = 'false';
-            editControls.style.display = 'none';
-            textContent.blur();
-            // Clear any selection
-            window.getSelection().removeAllRanges();
-        }
-        
-        this.updateControls();
-        this.saveState();
-    }
-    
-    openFrames() {
-        document.getElementById('framesOverlay').style.display = 'flex';
-        this.updateFramesList();
-        document.getElementById('frameDelay').value = this.state.frameDelay;
-    }
-    
-    closeFrames() {
-        document.getElementById('framesOverlay').style.display = 'none';
-    }
-    
-    updateFramesList() {
-        const framesList = document.getElementById('framesList');
-        framesList.innerHTML = '';
-        
-        this.state.frames.forEach((frame, index) => {
-            const isSelected = index === this.state.currentFrameIndex;
-            const frameItem = document.createElement('div');
-            frameItem.className = `frame-item ${isSelected ? 'selected' : ''}`;
-            frameItem.addEventListener('click', () => this.selectFrame(frame.id));
-            
-            frameItem.innerHTML = `
+	}
+
+	toggleEdit() {
+		this.state.isEditing = !this.state.isEditing;
+
+		if (this.state.isEditing && this.state.isPlaying) {
+			this.stopPlayback();
+		}
+
+		// Toggle edit controls and contenteditable
+		const textContent = document.getElementById('textContent');
+		const editControls = document.getElementById('editControls');
+
+		if (this.state.isEditing) {
+			textContent.contentEditable = 'true';
+			editControls.style.display = 'block';
+			textContent.focus();
+			// Select all text for easier editing
+			const range = document.createRange();
+			range.selectNodeContents(textContent);
+			const selection = window.getSelection();
+			selection.removeAllRanges();
+			selection.addRange(range);
+		} else {
+			// Save the text when exiting edit mode
+			this.updateCurrentFrame({ text: textContent.innerText });
+
+			textContent.contentEditable = 'false';
+			editControls.style.display = 'none';
+			textContent.blur();
+			// Clear any selection
+			window.getSelection().removeAllRanges();
+		}
+
+		this.updateControls();
+		this.saveState();
+	}
+
+	openFrames() {
+		document.getElementById('framesOverlay').style.display = 'flex';
+		this.updateFramesList();
+		document.getElementById('frameDelay').value = this.state.frameDelay;
+	}
+
+	closeFrames() {
+		document.getElementById('framesOverlay').style.display = 'none';
+	}
+
+	updateFramesList() {
+		const framesList = document.getElementById('framesList');
+		framesList.innerHTML = '';
+
+		this.state.frames.forEach((frame, index) => {
+			const isSelected = index === this.state.currentFrameIndex;
+			const frameItem = document.createElement('div');
+			frameItem.className = `frame-item ${isSelected ? 'selected' : ''}`;
+			frameItem.addEventListener('click', () => this.selectFrame(frame.id));
+
+			frameItem.innerHTML = `
                 <div class="frame-item-header">
                     <div class="frame-title">${index + 1}</div>
                     ${this.state.frames.length > 1 ? `<button class="icon-btn delete-frame-btn icon-trashIcon" onclick="event.stopPropagation(); app.deleteFrame(${frame.id})" title="Delete Frame"></button>` : ''}
                 </div>
                 <div class="frame-preview">${frame.text || 'Empty frame'}</div>
             `;
-            
-            framesList.appendChild(frameItem);
-        });
-        
-        // Update add frame button
-        const addFrameBtn = document.getElementById('addFrameBtn');
-        addFrameBtn.disabled = this.state.frames.length >= this.maxFrames;
-    }
-    
-    addFrame() {
-        if (this.state.frames.length >= this.maxFrames) return;
-        
-        const currentFrame = this.getCurrentFrame();
-        const newFrame = {
-            id: Date.now(),
-            text: currentFrame.text,
-            fontSize: currentFrame.fontSize,
-            fontWeight: currentFrame.fontWeight,
-            letterSpacing: currentFrame.letterSpacing
-        };
-        
-        this.state.frames.push(newFrame);
-        this.state.currentFrameIndex = this.state.frames.length - 1;
-        
-        this.updateDisplay();
-        this.updateControls();
-        this.updateFramesList();
-        this.saveState();
-    }
-    
-    deleteFrame(frameId) {
-        if (this.state.frames.length <= 1) return;
-        
-        const frameIndex = this.state.frames.findIndex(f => f.id === frameId);
-        if (frameIndex === -1) return;
-        
-        this.state.frames.splice(frameIndex, 1);
-        
-        if (this.state.currentFrameIndex >= this.state.frames.length) {
-            this.state.currentFrameIndex = this.state.frames.length - 1;
-        }
-        
-        this.updateDisplay();
-        this.updateControls();
-        this.updateFramesList();
-        this.saveState();
-    }
-    
-    selectFrame(frameId) {
-        const frameIndex = this.state.frames.findIndex(f => f.id === frameId);
-        if (frameIndex === -1) return;
-        
-        this.state.currentFrameIndex = frameIndex;
-        this.updateDisplay();
-        this.updateControls();
-        this.updateFramesList();
-    }
-    
-    updateFrameDelay(delay) {
-        if (isNaN(delay)) return;
-        this.state.frameDelay = delay;
-        this.saveState();
-    }
-    
-    togglePlayback() {
-        if (this.state.isPlaying) {
-            this.stopPlayback();
-        } else {
-            this.startPlayback();
-        }
-    }
-    
-    startPlayback() {
-        if (this.state.frames.length <= 1) return;
-        
-        this.state.isPlaying = true;
-        this.updateControls();
-        
-        this.playbackInterval = setInterval(() => {
-            this.state.currentFrameIndex = (this.state.currentFrameIndex + 1) % this.state.frames.length;
-            this.updateDisplay();
-            this.updateControls();
-        }, this.state.frameDelay * 1000);
-    }
-    
-    stopPlayback() {
-        this.state.isPlaying = false;
-        this.updateControls();
-        
-        if (this.playbackInterval) {
-            clearInterval(this.playbackInterval);
-            this.playbackInterval = null;
-        }
-    }
+
+			framesList.appendChild(frameItem);
+		});
+
+		// Update add frame button
+		const addFrameBtn = document.getElementById('addFrameBtn');
+		addFrameBtn.disabled = this.state.frames.length >= this.maxFrames;
+	}
+
+	addFrame() {
+		if (this.state.frames.length >= this.maxFrames) return;
+
+		const currentFrame = this.getCurrentFrame();
+		const newFrame = {
+			id: Date.now(),
+			text: currentFrame.text,
+			fontSize: currentFrame.fontSize,
+			fontWeight: currentFrame.fontWeight,
+			letterSpacing: currentFrame.letterSpacing
+		};
+
+		this.state.frames.push(newFrame);
+		this.state.currentFrameIndex = this.state.frames.length - 1;
+
+		this.updateDisplay();
+		this.updateControls();
+		this.updateFramesList();
+		this.saveState();
+	}
+
+	deleteFrame(frameId) {
+		if (this.state.frames.length <= 1) return;
+
+		const frameIndex = this.state.frames.findIndex(f => f.id === frameId);
+		if (frameIndex === -1) return;
+
+		this.state.frames.splice(frameIndex, 1);
+
+		if (this.state.currentFrameIndex >= this.state.frames.length) {
+			this.state.currentFrameIndex = this.state.frames.length - 1;
+		}
+
+		this.updateDisplay();
+		this.updateControls();
+		this.updateFramesList();
+		this.saveState();
+	}
+
+	selectFrame(frameId) {
+		const frameIndex = this.state.frames.findIndex(f => f.id === frameId);
+		if (frameIndex === -1) return;
+
+		this.state.currentFrameIndex = frameIndex;
+		this.updateDisplay();
+		this.updateControls();
+		this.updateFramesList();
+	}
+
+	updateFrameDelay(delay) {
+		if (isNaN(delay)) return;
+		this.state.frameDelay = delay;
+		this.saveState();
+	}
+
+	togglePlayback() {
+		if (this.state.isPlaying) {
+			this.stopPlayback();
+		} else {
+			this.startPlayback();
+		}
+	}
+
+	startPlayback() {
+		if (this.state.frames.length <= 1) return;
+
+		this.state.isPlaying = true;
+		this.updateControls();
+
+		this.playbackInterval = setInterval(() => {
+			this.state.currentFrameIndex = (this.state.currentFrameIndex + 1) % this.state.frames.length;
+			this.updateDisplay();
+			this.updateControls();
+		}, this.state.frameDelay * 1000);
+	}
+
+	stopPlayback() {
+		this.state.isPlaying = false;
+		this.updateControls();
+
+		if (this.playbackInterval) {
+			clearInterval(this.playbackInterval);
+			this.playbackInterval = null;
+		}
+	}
 }
 
 // Initialize the app when the page loads
 let app;
 document.addEventListener('DOMContentLoaded', () => {
-    app = new SignboardApp();
+	app = new SignboardApp();
 });
