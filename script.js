@@ -7,7 +7,7 @@ class SignboardApp {
 			frames: [
 				{
 					id: 0,
-					text: 'MegaNote',
+					text: 'Hey',
 					fontSize: 120,
 					fontWeight: 120,
 					letterSpacing: -.07
@@ -120,7 +120,7 @@ class SignboardApp {
 					frames: [
 						{
 							id: 0,
-							text: 'MegaNote',
+							text: 'Hey',
 							fontSize: 120,
 							fontWeight: 120,
 							letterSpacing: -.07
