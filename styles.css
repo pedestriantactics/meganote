@@ -2,361 +2,430 @@
    Font Face Declarations
    ======================================== */
 @font-face {
-    font-family: "Hyperwalk VF";
-    src:
-        url("fonts/HyperwalkVF.woff2") format("woff2"),
-        url("fonts/HyperwalkVF.woff") format("woff"),
-        url("fonts/HyperwalkVF.ttf") format("ttf");
+	font-family: "Hyperwalk VF";
+	src:
+		url("fonts/HyperwalkVF.woff2") format("woff2"),
+		url("fonts/HyperwalkVF.woff") format("woff"),
+		url("fonts/HyperwalkVF.ttf") format("ttf");
 }
+
 @font-face {
-    font-family: "Hyperwalk Mono VF";
-    src:
-        url("fonts/HyperwalkMonoVF.woff2") format("woff2"),
-        url("fonts/HyperwalkMonoVF.woff") format("woff"),
-        url("fonts/HyperwalkMonoVF.ttf") format("ttf");
+	font-family: "Hyperwalk Mono VF";
+	src:
+		url("fonts/HyperwalkMonoVF.woff2") format("woff2"),
+		url("fonts/HyperwalkMonoVF.woff") format("woff"),
+		url("fonts/HyperwalkMonoVF.ttf") format("ttf");
+}
+
+@font-face {
+	font-family: "EXIF Only VF";
+	src:
+		url("fonts/EXIFOnlyVF.woff2") format("woff2"),
+		url("fonts/EXIFOnlyVF.woff") format("woff"),
+		url("fonts/EXIFOnlyVF.ttf") format("ttf");
 }
 
 /* ========================================
    CSS Variables
    ======================================== */
 :root {
-    --color-black: #000000;
-    --color-white: #ffffff;
-    --color-highlight: #ff0000;
-    --font-ui: "Hyperwalk VF", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-display: "Hyperwalk VF", Georgia, serif;
-    --font-size-base: 14pt;
-    --spacing-page: 1rem;
-    --spacing-vertical: 1rem;
+	--color-bg: #000000;
+	--color-fg: #ffffff;
+	--color-highlight: #ff0000;
+	--color-inactive: #555555;
+	--vertical-spacing: 2rem;
+	--padding: 1rem;
+	--max-width: 28rem;
+	font-size: 16pt;
+	background-color: var(--color-bg);
 }
 
 /* ========================================
    Base Styles
    ======================================== */
-* {
-    box-sizing: border-box;
-    transition: none !important;
-    animation: none !important;
+/* * {
+	box-sizing: border-box;
+	transition: none !important;
+	animation: none !important;
+} */
+
+body,
+p,
+button,
+input,
+textarea {
+	font-family: "EXIF Only VF", "Hyperwalk VF", sans-serif;
+	font-weight: 75;
+	color: var(--color-fg);
+	/* overflow: hidden; */
+	/* margin: 0; */
+	/* padding: 0; */
+	/* -webkit-touch-callout: none; */
+	/* -webkit-user-select: none; */
+	/* user-select: none; */
 }
 
-.mono {
-    font-family: "Hyperwalk Mono VF", monospace;
+/* icons */
+.icon-addIcon::before {
+	content: '\E000';
 }
 
-body {
-    font-family: var(--font-ui);
-    font-weight: 60;
-    font-size: var(--font-size-base);
-    letter-spacing: 0.04em;
-    background-color: var(--color-black);
-    color: var(--color-white);
-    overflow: hidden;
-    margin: 0;
-    padding: 0;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
+.icon-checkIcon::before {
+	content: '\E001';
+}
+
+.icon-closeIcon::before {
+	content: '\E002';
+}
+
+.icon-loginIcon::before {
+	content: '\E003';
+}
+
+.icon-profileIcon::before {
+	content: '\E004';
+}
+
+.icon-bookmarkIcon::before {
+	content: '\E005';
+}
+
+.icon-searchIcon::before {
+	content: '\E006';
+}
+
+.icon-trashIcon::before {
+	content: '\E007';
+}
+
+.icon-editIcon::before {
+	content: '\E008';
+}
+
+.icon-sunIcon::before {
+	content: '\E009';
+}
+
+.icon-moonIcon::before {
+	content: '\E010';
+}
+
+.icon-systemThemeIcon::before {
+	content: '\E011';
+}
+
+.icon-addToLeftIcon::before {
+	content: '\E012';
+}
+
+.icon-addToRightIcon::before {
+	content: '\E013';
+}
+
+.icon-diskIcon::before {
+	content: '\E014';
+}
+
+.icon-flagIcon::before {
+	content: '\E015';
+}
+
+.icon-warningIcon::before {
+	content: '\E016';
+}
+
+.icon-swapIcon::before {
+	content: '\E017';
+}
+.icon-playIcon::before {
+	content: '\E018';
+}
+.icon-pauseIcon::before {
+	content: '\E019';
+}
+.icon-settingsIcon::before {
+	content: '\E020';
+}
+.icon-duplicateIcon::before {
+	content: '\E021';
+}
+
+.arrow-left::before {
+	content: "←";
+}
+
+/* for selected elements in the tag menu */
+.selected::after {
+	content: " ←";
+}
+
+.arrow-right::before {
+	content: "→";
+}
+
+.arrow-button::after {
+	content: " →";
 }
 
 /* ========================================
    Layout
    ======================================== */
 #app {
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    flex-direction: column;
+	height: 100vh;
+	width: 100vw;
+	/* display: flex; */
+	/* flex-direction: column; */
 }
 
 .main-display {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.25rem;
-    z-index: 1;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
 }
 
-.text-area {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-/* ========================================
-   Text Display
-   ======================================== */
-.display-text {
-    font-family: var(--font-display);
-    font-weight: 80;
-    word-break: break-word;
-    line-height: 1.2;
-    cursor: default;
-    user-select: none;
-}
-
-.edit-text {
-    font-family: var(--font-display);
-    font-weight: 80;
-    background: transparent;
-    border: none;
-    outline: none;
-    resize: none;
-    color: var(--color-white);
-    text-align: center;
-    width: 100%;
-    line-height: 1.2;
-    user-select: text;
+.text-content {
+	text-align: center;
+	width: 100%;
+	/* remove any outlines from editing text */
+	outline: none;
 }
 
 /* ========================================
    Control Buttons
    ======================================== */
 .btn {
-    font-family: var(--font-ui);
-    font-weight: 60;
-    font-size: var(--font-size-base);
-    letter-spacing: 0.04em;
-    padding: .2rem .2rem 0rem .3rem;
-    background: none;
-    border: 1px solid var(--color-white);
-    color: var(--color-white);
-    cursor: pointer;
+	padding: 0.3rem 0.5rem;
+	background: none;
+	border: 1px solid var(--color-fg);
+	color: var(--color-fg);
+	cursor: pointer;
+	font-size: inherit;
 }
 
 .controls {
-    position: fixed;
-    top: var(--spacing-page);
-    right: var(--spacing-page);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.5em;
-    z-index: 50;
+	position: fixed;
+	top: var(--padding);
+	right: var(--padding);
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 0.5em;
+	z-index: 50;
 }
 
-.control-btn {
-    /* Inherits from .btn */
+.frame-counter {
+	position: fixed;
+	top: var(--padding);
+	left: var(--padding);
+}
+
+.icon-btn {
+	width: 2rem;
+	height: 2rem;
+	font-size: 20pt;
+	background: none;
+	border: none;
+	color: var(--color-fg);
+	cursor: pointer;
 }
 
 /* ========================================
    Edit Controls
    ======================================== */
 .edit-controls {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: var(--color-black);
-    color: var(--color-white);
-    padding: var(--spacing-page);
-    border-top: 1px solid var(--color-white);
-    z-index: 60;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	background-color: var(--color-bg);
+	color: var(--color-fg);
+	padding: var(--padding);
+	border-top: 1px solid var(--color-fg);
+	z-index: 60;
 }
 
 .edit-panel {
-    max-width: 28rem;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-vertical);
+	max-width: var(--max-width);
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-vertical);
 }
 
 .slider-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5em;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5em;
 }
 
 .slider-group label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 1rem;
-    font-family: var(--font-ui);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-family: var(--font-ui);
 }
 
 .slider {
-    appearance: none;
-    height: 1px;
-    border-radius: 0;
-    width: 100%;
-    outline: none;
-    background-color: var(--color-white);
-    margin: 0;
-    padding: 0;
-    margin-bottom: 1rem;
+	appearance: none;
+	height: 1px;
+	border-radius: 0;
+	width: 100%;
+	outline: none;
+	background-color: var(--color-fg);
+	margin: 0;
+	padding: 0;
+	margin-bottom: 1rem;
 }
 
 .slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 24px;
-    height: 24px;
-    background: var(--color-black);
-    outline: 1px solid var(--color-white);
-    border-radius: 100%;
-    cursor: pointer;
+	-webkit-appearance: none;
+	appearance: none;
+	width: 24px;
+	height: 24px;
+	background: var(--color-bg);
+	outline: 1px solid var(--color-fg);
+	border-radius: 100%;
+	cursor: pointer;
 }
 
 .slider::-moz-range-thumb {
-    width: 24px;
-    height: 24px;
-    background: var(--color-black);
-    outline: 1px solid var(--color-white);
-    border-radius: 100%;
-    cursor: pointer;
-    border: none;
+	width: 24px;
+	height: 24px;
+	background: var(--color-bg);
+	outline: 1px solid var(--color-fg);
+	border-radius: 100%;
+	cursor: pointer;
+	border: none;
 }
 
 /* ========================================
    Frames Overlay
    ======================================== */
 .frames-overlay {
-    position: fixed;
-    inset: 0;
-    background-color: var(--color-black);
-    color: var(--color-white);
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-}
-
-.frames-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--spacing-page);
-    border-bottom: 1px solid var(--color-white);
-}
-
-.frames-header h2 {
-    font-size: 1rem;
-    font-family: var(--font-ui);
+	position: fixed;
+	inset: 0;
+	background-color: var(--color-bg);
+	color: var(--color-fg);
+	z-index: 100;
+	display: flex;
+	flex-direction: column;
 }
 
 .close-btn {
-    /* Inherits from .btn */
+	position: fixed;
+	top: var(--padding);
+	right: var(--padding);
+	z-index: 110;
 }
 
 .frames-content {
-    flex: 1;
-    padding: var(--spacing-page);
-    overflow-y: auto;
+	flex: 1;
+	padding: var(--padding);
+	overflow-y: auto;
+	padding-top: calc(var(--padding) + 4rem); /* Add space for close button */
 }
 
-.frames-content > * {
-    max-width: 28rem;
-    margin: 0 auto;
+.frames-content>* {
+	max-width: 28rem;
+	margin: 0 auto;
 }
 
 /* ========================================
    Frame Delay Section
    ======================================== */
 .frame-delay-section {
-    margin-bottom: var(--spacing-vertical);
+	margin-bottom: var(--spacing-vertical);
 }
 
 .frame-delay-section label {
-    display: block;
-    margin-bottom: 0.5em;
-    font-size: 1rem;
-    font-family: var(--font-ui);
+	display: block;
+	margin-bottom: 0.5em;
 }
 
 .delay-input {
-    width: 100%;
-    padding: 0.5em;
-    border: 1px solid var(--color-white);
-    background: var(--color-black);
-    color: var(--color-white);
-    font-size: 1rem;
-    font-family: var(--font-ui);
+	width: 100%;
+	padding: 0.5em;
+	border: 1px solid var(--color-fg);
+	background: var(--color-bg);
+	color: var(--color-fg);
+	font-size: inherit;
+	font-family: inherit;
 }
 
 /* ========================================
    Frames List
    ======================================== */
 .frames-section {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-vertical);
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-vertical);
 }
 
 .frames-header-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.frames-header-row label {
-    font-size: 1rem;
-    font-family: var(--font-ui);
-}
-
-.add-frame-btn {
-    /* Inherits from .btn */
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 }
 
 .add-frame-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+	opacity: 0.5;
+	cursor: not-allowed;
 }
 
 .frames-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5em;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5em;
+}
+
+.settings-section {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5em;
+	margin-bottom: var(--spacing-vertical);
 }
 
 .frame-item {
-    background-color: var(--color-black);
-    color: var(--color-white);
-    border: 1px solid var(--color-white);
-    padding: var(--spacing-vertical);
-    cursor: pointer;
+	background-color: var(--color-bg);
+	color: var(--color-fg);
+	border: 1px solid var(--color-fg);
+	padding: var(--padding);
+	cursor: pointer;
+	position: relative;
+}
+
+.frame-item::before,
+.frame-item::after {
+	display: none !important;
+	content: none !important;
 }
 
 .frame-item.selected {
-    border-color: var(--color-highlight);
+	border-color: var(--color-highlight);
+	background-color: var(--color-bg);
 }
 
 .frame-item-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.5em;
-}
-
-.frame-title {
-    font-size: 1rem;
-    font-family: var(--font-ui);
-}
-
-.delete-frame-btn {
-    /* Inherits from .btn */
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 0.5em;
 }
 
 .reset-cache-btn {
-    /* Inherits from .btn */
-    position: fixed;
-    bottom: var(--spacing-page);
-    left: var(--spacing-page);
-    z-index: 110;
+	position: fixed;
+	bottom: var(--padding);
+	left: var(--padding);
+	z-index: 110;
 }
 
 /* ========================================
    Safe Area Support
    ======================================== */
 @supports (padding: max(0px)) {
-    .edit-controls {
-        padding-bottom: max(var(--spacing-page), env(safe-area-inset-bottom));
-    }
+	.edit-controls {
+		padding-bottom: max(var(--padding), env(safe-area-inset-bottom));
+	}
 }

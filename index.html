@@ -18,17 +18,15 @@
     <div id="app">
         <!-- Main Display -->
         <div id="mainDisplay" class="main-display">
-            <div id="textArea" class="text-area">
-                <div id="displayText" class="display-text">edit me</div>
-                <textarea id="editText" class="edit-text" style="display: none;">edit me</textarea>
-            </div>
+            <div id="textContent" class="text-content" contenteditable="false">edit me</div>
         </div>
 
-        <!-- Control Buttons -->
+        <div id="frameCounter" class="frame-counter">1</div>
+
         <div id="controls" class="controls">
-            <button id="editBtn" class="btn control-btn" title="Edit text">Edit</button>
-            <button id="frameBtn" class="btn control-btn" title="Open frames">Frame 1</button>
-            <button id="playBtn" class="btn control-btn" title="Play animation" style="display: none;">Play</button>
+            <button id="editBtn" class="icon-btn" title="Edit"></button>
+            <button id="settingsBtn" class="icon-btn icon-settingsIcon" title="Frame Settings"></button>
+            <button id="playBtn" class="icon-btn" title="Play animation" style="display: none;"></button>
         </div>
 
         <!-- Edit Controls -->
@@ -51,10 +49,7 @@
 
         <!-- Frames Overlay -->
         <div id="framesOverlay" class="frames-overlay" style="display: none;">
-            <div class="frames-header">
-                <h2>Animation Frames</h2>
-                <button id="closeFramesBtn" class="btn close-btn">Close</button>
-            </div>
+            <button id="closeFramesBtn" class="icon-btn close-btn icon-closeIcon" title="Close"></button>
             <div class="frames-content">
                 <div class="frame-delay-section">
                     <label for="frameDelay">Seconds between frames</label>
@@ -64,32 +59,18 @@
                 <div class="frames-section">
                     <div class="frames-header-row">
                         <label>Frames</label>
-                        <button id="addFrameBtn" class="btn add-frame-btn">Add Frame</button>
+                        <button id="addFrameBtn" class="icon-btn add-frame-btn icon-addIcon" title="Add Frame"></button>
                     </div>
                     <div id="framesList" class="frames-list">
-                        <!-- Frames will be populated here -->
+
                     </div>
                 </div>
                 
-                <button id="resetCacheBtn" class="btn reset-cache-btn">Reset Cache</button>
+                <button id="resetCacheBtn" class="btn reset-cache-btn">Reset</button>
             </div>
         </div>
     </div>
 
     <script src="script.js"></script>
-    <script>
-        // Service worker disabled for development
-        // if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
-        //     window.addEventListener('load', () => {
-        //         navigator.serviceWorker.register('sw.js')
-        //             .then((registration) => {
-        //                 console.log('SW registered: ', registration);
-        //             })
-        //             .catch((registrationError) => {
-        //                 console.log('SW registration failed: ', registrationError);
-        //             });
-        //     });
-        // }
-    </script>
 </body>
 </html>

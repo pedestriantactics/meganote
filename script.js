@@ -33,7 +33,7 @@ class SignboardApp {
     bindEvents() {
         // Control buttons
         document.getElementById('editBtn').addEventListener('click', () => this.toggleEdit());
-        document.getElementById('frameBtn').addEventListener('click', () => this.openFrames());
+        document.getElementById('settingsBtn').addEventListener('click', () => this.openFrames());
         document.getElementById('playBtn').addEventListener('click', () => this.togglePlayback());
         
         // Edit controls
@@ -49,9 +49,10 @@ class SignboardApp {
             this.updateCurrentFrame({ letterSpacing: parseFloat(e.target.value) });
         });
         
-        document.getElementById('editText').addEventListener('input', (e) => {
-            this.updateCurrentFrame({ text: e.target.value });
-        });
+        // Remove automatic text updates - only save when edit button is pressed
+        // document.getElementById('textContent').addEventListener('input', (e) => {
+        //     // Text updates now happen only when save button is pressed
+        // });
         
         // Frames overlay
         document.getElementById('closeFramesBtn').addEventListener('click', () => this.closeFrames());
@@ -142,32 +143,32 @@ class SignboardApp {
     updateCurrentFrame(updates) {
         const frame = this.getCurrentFrame();
         Object.assign(frame, updates);
-        this.updateDisplay();
+        
+        // Only update display if we're not editing text, or if it's a style change
+        if (!this.state.isEditing || !updates.hasOwnProperty('text')) {
+            this.updateDisplay();
+        }
+        
         this.saveState();
     }
     
     updateDisplay() {
         const frame = this.getCurrentFrame();
-        const displayText = document.getElementById('displayText');
-        const editText = document.getElementById('editText');
+        const textContent = document.getElementById('textContent');
         
-        // Update text content
-        displayText.textContent = frame.text;
-        editText.value = frame.text;
+        // Only update text content if not currently editing to avoid cursor repositioning
+        if (!this.state.isEditing) {
+            textContent.innerText = frame.text;
+        }
         
-        // Update styles
+        // Update styles (always safe to update these)
         const style = {
             fontSize: `${frame.fontSize}pt`,
             fontWeight: frame.fontWeight,
             letterSpacing: `${frame.letterSpacing}em`
         };
         
-        Object.assign(displayText.style, style);
-        Object.assign(editText.style, style);
-        
-        // Update textarea rows based on content
-        const lines = Math.max(1, Math.ceil(frame.text.length / 20));
-        editText.rows = lines;
+        Object.assign(textContent.style, style);
         
         // Update sliders
         document.getElementById('fontSizeSlider').value = frame.fontSize;
@@ -179,20 +180,28 @@ class SignboardApp {
     }
     
     updateControls() {
-        // Update frame button
-        document.getElementById('frameBtn').textContent = `Frame ${this.state.currentFrameIndex + 1}`;
+        // Update frame counter
+        document.getElementById('frameCounter').textContent = `${this.state.currentFrameIndex + 1}`;
         
-        // Show/hide play button
+        // Show/hide play button (only if multiple frames AND not editing)
         const playBtn = document.getElementById('playBtn');
-        if (this.state.frames.length > 1) {
+        if (this.state.frames.length > 1 && !this.state.isEditing) {
             playBtn.style.display = 'block';
-            playBtn.textContent = this.state.isPlaying ? 'Pause' : 'Play';
+            playBtn.textContent = this.state.isPlaying ? '\uE019' : '\uE018';
         } else {
             playBtn.style.display = 'none';
         }
         
+        // Show/hide settings button (hide when editing)
+        const settingsBtn = document.getElementById('settingsBtn');
+        if (this.state.isEditing) {
+            settingsBtn.style.display = 'none';
+        } else {
+            settingsBtn.style.display = 'block';
+        }
+        
         // Update edit button
-        document.getElementById('editBtn').textContent = this.state.isEditing ? 'Save' : 'Edit';
+		document.getElementById('editBtn').textContent = this.state.isEditing ? '\uE001' : '\uE008';
     }
     
     toggleEdit() {
@@ -202,21 +211,29 @@ class SignboardApp {
             this.stopPlayback();
         }
         
-        // Toggle display/edit elements
-        const displayText = document.getElementById('displayText');
-        const editText = document.getElementById('editText');
+        // Toggle edit controls and contenteditable
+        const textContent = document.getElementById('textContent');
         const editControls = document.getElementById('editControls');
         
         if (this.state.isEditing) {
-            displayText.style.display = 'none';
-            editText.style.display = 'block';
+            textContent.contentEditable = 'true';
             editControls.style.display = 'block';
-            editText.focus();
-            editText.select();
+            textContent.focus();
+            // Select all text for easier editing
+            const range = document.createRange();
+            range.selectNodeContents(textContent);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
         } else {
-            displayText.style.display = 'block';
-            editText.style.display = 'none';
+            // Save the text when exiting edit mode
+            this.updateCurrentFrame({ text: textContent.innerText });
+            
+            textContent.contentEditable = 'false';
             editControls.style.display = 'none';
+            textContent.blur();
+            // Clear any selection
+            window.getSelection().removeAllRanges();
         }
         
         this.updateControls();
@@ -245,11 +262,10 @@ class SignboardApp {
             
             frameItem.innerHTML = `
                 <div class="frame-item-header">
-                    <div class="frame-title">Frame ${index + 1}</div>
-                    ${this.state.frames.length > 1 ? `<button class="btn delete-frame-btn" onclick="event.stopPropagation(); app.deleteFrame(${frame.id})">Delete</button>` : ''}
+                    <div class="frame-title">${index + 1}</div>
+                    ${this.state.frames.length > 1 ? `<button class="icon-btn delete-frame-btn icon-trashIcon" onclick="event.stopPropagation(); app.deleteFrame(${frame.id})" title="Delete Frame"></button>` : ''}
                 </div>
                 <div class="frame-preview">${frame.text || 'Empty frame'}</div>
-                <div class="frame-details">Size: ${frame.fontSize}px, Spacing: ${frame.letterSpacing}px</div>
             `;
             
             framesList.appendChild(frameItem);
