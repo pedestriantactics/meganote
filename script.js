@@ -95,7 +95,20 @@ class SignboardApp {
     }
     
     resetCache() {
-        if (confirm('Are you sure you want to reset the app? This will delete all frames and settings.')) {
+        console.log('Reset cache button clicked');
+        
+        // For debugging, let's also try without confirm dialog
+        const skipConfirm = true; // Set to true to skip confirmation
+        let userConfirmed = skipConfirm;
+        
+        if (!skipConfirm) {
+            userConfirmed = confirm('Are you sure you want to reset the app? This will delete all frames and settings.');
+        }
+        
+        console.log('Confirm dialog result:', userConfirmed);
+        
+        if (userConfirmed) {
+            console.log('User confirmed reset');
             try {
                 localStorage.removeItem(this.storageKey);
                 
@@ -130,9 +143,13 @@ class SignboardApp {
                 // Close frames overlay if open
                 this.closeFrames();
                 
+                console.log('Reset cache completed successfully');
+                
             } catch (error) {
                 console.error('Failed to reset cache:', error);
             }
+        } else {
+            console.log('User cancelled reset');
         }
     }
     

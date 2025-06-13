@@ -1,76 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Digital Signboard">
-    <meta name="theme-color" content="#000000">
-    <title>Digital Signboard</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.svg">
-    <meta name="description" content="Create custom digital signboards with multi-frame text display and offline functionality">
-    <link rel="stylesheet" href="reset.css">
-    <link rel="stylesheet" href="styles.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="Digital Signboard">
+	<meta name="theme-color" content="#000000">
+	<title>Digital Signboard</title>
+	<link rel="manifest" href="manifest.json">
+	<link rel="apple-touch-icon" href="icon-192.svg">
+	<meta name="description"
+		content="Create custom digital signboards with multi-frame text display and offline functionality">
+	<link rel="stylesheet" href="reset.css">
+	<link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-    <div id="app">
-        <!-- Main Display -->
-        <div id="mainDisplay" class="main-display">
-            <div id="textContent" class="text-content" contenteditable="false">edit me</div>
-        </div>
+	<div id="app">
+		<!-- Main Display -->
+		<div id="mainDisplay" class="main-display">
+			<div id="textContent" class="text-content" contenteditable="false">edit me</div>
+		</div>
 
-        <div id="frameCounter" class="frame-counter">1</div>
+		<div id="frameCounter" class="frame-counter">1</div>
 
-        <div id="controls" class="controls">
-            <button id="editBtn" class="icon-btn" title="Edit"></button>
-            <button id="settingsBtn" class="icon-btn icon-settingsIcon" title="Frame Settings"></button>
-            <button id="playBtn" class="icon-btn" title="Play animation" style="display: none;"></button>
-        </div>
+		<div id="controls" class="controls">
+			<button id="editBtn" class="icon-btn" title="Edit"></button>
+			<button id="settingsBtn" class="icon-btn icon-settingsIcon" title="Frame Settings"></button>
+			<button id="playBtn" class="icon-btn" title="Play animation" style="display: none;"></button>
+		</div>
 
-        <!-- Edit Controls -->
-        <div id="editControls" class="edit-controls" style="display: none;">
-            <div class="edit-panel">
-                <div class="slider-group">
-                    <label>Size: <span id="fontSizeValue">128</span>pt</label>
-                    <input type="range" id="fontSizeSlider" min="32" max="1024" value="128" class="slider">
-                </div>
-                <div class="slider-group">
-                    <label>Weight: <span id="fontWeightValue">80</span></label>
-                    <input type="range" id="fontWeightSlider" min="60" max="120" value="80" class="slider">
-                </div>
-                <div class="slider-group">
-                    <label>Spacing: <span id="letterSpacingValue">0</span>em</label>
-                    <input type="range" id="letterSpacingSlider" min="-0.1" max="0.2" step="0.01" value="0" class="slider">
-                </div>
-            </div>
-        </div>
+		<!-- Edit Controls -->
+		<div id="editControls" class="edit-controls" style="display: none;">
+			<div class="edit-panel">
+				<div class="slider-group">
+					<label><span>Size:</span><span><span id="fontSizeValue">128</span>pt</span></label>
+					<input type="range" id="fontSizeSlider" min="32" max="1024" value="128" class="slider">
+				</div>
+				<div class="slider-group">
+					<label>Weight: <span id="fontWeightValue">80</span></label>
+					<input type="range" id="fontWeightSlider" min="60" max="120" value="80" class="slider">
+				</div>
+				<div class="slider-group">
+					<label><span>Spacing:</span><span><span id="letterSpacingValue">0</span>em</span></label>
+					<input type="range" id="letterSpacingSlider" min="-0.1" max="0.2" step="0.01" value="0"
+						class="slider">
+				</div>
+			</div>
+		</div>
 
-        <!-- Frames Overlay -->
-        <div id="framesOverlay" class="frames-overlay" style="display: none;">
-            <button id="closeFramesBtn" class="icon-btn close-btn icon-closeIcon" title="Close"></button>
-            <div class="frames-content">
-                <div class="frame-delay-section">
-                    <label for="frameDelay">Seconds between frames</label>
-                    <input type="number" id="frameDelay" min="0.5" max="10" step="0.5" value="1" class="delay-input">
-                </div>
-                
-                <div class="frames-section">
-                    <div class="frames-header-row">
-                        <label>Frames</label>
-                        <button id="addFrameBtn" class="icon-btn add-frame-btn icon-addIcon" title="Add Frame"></button>
-                    </div>
-                    <div id="framesList" class="frames-list">
+		<!-- Frames Overlay -->
+		<div id="framesOverlay" class="frames-overlay" style="display: none;">
+			<button id="closeFramesBtn" class="icon-btn close-btn icon-closeIcon" title="Close"></button>
+			<button id="resetCacheBtn" class="btn reset-cache-btn">Reset</button>
+			<div class="frames-content">
+				<div class="frames-section">
+					<label for="frameDelay">Seconds between frames</label>
+					<input type="number" id="frameDelay" step="0.5" value="1" class="delay-input">
+				</div>
 
-                    </div>
-                </div>
-                
-                <button id="resetCacheBtn" class="btn reset-cache-btn">Reset</button>
-            </div>
-        </div>
-    </div>
+				<div class="frames-section">
+					<div class="frames-header-row">
+						<label>Frames</label>
+						<button id="addFrameBtn" class="icon-btn add-frame-btn icon-addIcon" title="Add Frame"></button>
+					</div>
+					<div id="framesList" class="frames-list">
 
-    <script src="script.js"></script>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="script.js"></script>
 </body>
+
 </html>
