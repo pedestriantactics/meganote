@@ -53,21 +53,26 @@
 
 		<!-- Frames Overlay -->
 		<div id="framesOverlay" class="frames-overlay" style="display: none;">
-			<button id="closeFramesBtn" class="icon-btn close-btn icon-closeIcon" title="Close"></button>
-			<button id="resetCacheBtn" class="btn reset-cache-btn">Reset</button>
-			<div class="frames-content">
-				<div class="frames-section">
-					<label for="frameDelay">Seconds between frames</label>
-					<input type="number" id="frameDelay" step="0.5" value="1" class="delay-input">
-				</div>
-
-				<div class="frames-section">
-					<div class="frames-header-row">
-						<label>Frames</label>
-						<button id="addFrameBtn" class="icon-btn add-frame-btn icon-addIcon" title="Add Frame"></button>
+			<div class="frames-header">
+				<button id="closeFramesBtn" class="icon-btn close-btn icon-closeIcon" title="Close"></button>
+			</div>
+			<div class="frames-content-container">
+				<div class="frames-content">
+					<div class="frames-section">
+						<label for="frameDelay">Seconds between frames</label>
+						<input type="number" id="frameDelay" step="0.5" value="1" class="delay-input">
 					</div>
-					<div id="framesList" class="frames-list">
 
+					<div class="frames-section">
+						<div class="frames-header-row">
+							<label>Frames</label>
+							<button id="addFrameBtn" class="icon-btn add-frame-btn icon-addIcon"
+								title="Add Frame"></button>
+						</div>
+						<div id="framesList" class="frames-list">
+
+						</div>
+						<button id="resetCacheBtn" class="btn reset-cache-btn">Reset</button>
 					</div>
 				</div>
 			</div>

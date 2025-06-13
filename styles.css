@@ -137,15 +137,19 @@ textarea {
 .icon-swapIcon::before {
 	content: '\E017';
 }
+
 .icon-playIcon::before {
 	content: '\E018';
 }
+
 .icon-pauseIcon::before {
 	content: '\E019';
 }
+
 .icon-settingsIcon::before {
 	content: '\E020';
 }
+
 .icon-duplicateIcon::before {
 	content: '\E021';
 }
@@ -190,6 +194,9 @@ textarea {
 	width: 100%;
 	/* remove any outlines from editing text */
 	outline: none;
+	/* make sure the text always wraps in the box even by letter */
+	/* white-space: pre-wrap; */
+	overflow-wrap: break-word;
 }
 
 /* ========================================
@@ -315,24 +322,41 @@ textarea {
 	z-index: 100;
 	display: flex;
 	flex-direction: column;
-	align-items: center;
-	justify-content: top;
+	/* align-items: center; */
+	/* justify-content: top; */
+	overflow-y: auto;
+}
+
+.frames-header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: end;
+	background-color: var(--color-bg);
 }
 
 .close-btn {
-	position: fixed;
-	top: var(--padding);
-	right: var(--padding);
-	z-index: 110;
+	margin: var(--padding);
+}
+
+.frames-content-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	/* padding: var(--padding); */
 }
 
 .frames-content {
 	display: flex;
 	flex-direction: column;
+	width: calc(100% - 2 * var(--padding));
 	max-width: var(--max-width);
 	gap: var(--vertical-spacing);
 	margin-top: 6rem;
-	width: 100%;
+	max-height: calc(100vh - 8rem);
 }
 
 .frames-section {
@@ -433,10 +457,7 @@ textarea {
 }
 
 .reset-cache-btn {
-	position: fixed;
-	bottom: var(--padding);
-	left: var(--padding);
-	z-index: 110;
+	flex-shrink: 1;
 }
 
 /* ========================================
@@ -450,8 +471,8 @@ textarea {
 
 /* make a breakpoint at 600px */
 @media (max-width: 600px) {
-.edit-panel {
-	flex-direction: column;
-	max-width: var(--max-width);
-}
+	.edit-panel {
+		flex-direction: column;
+		max-width: var(--max-width);
+	}
 }
