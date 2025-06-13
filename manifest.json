@@ -1,23 +1,23 @@
 {
-  "name": "Digital Signboard",
-  "short_name": "Signboard",
-  "description": "Create custom digital signboards with multi-frame text display and offline functionality",
+  "name": "MegaNote",
+  "short_name": "MegaNote",
+  "description": "Turn your screen into a signboard with giant letters. Useful for marches, protests, concerts, communicating from a distance, leaving your computer unnatended.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#007AFF",
+  "theme_color": "#000000",
   "orientation": "any",
   "icons": [
     {
-      "src": "icon-192.svg",
+      "src": "android-chrome-192x192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icon-512.svg",
+      "src": "android-chrome-512x512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
