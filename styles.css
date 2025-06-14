@@ -262,6 +262,10 @@ textarea {
 	cursor: pointer;
 }
 
+#fullscreenBtn {
+	display:none;
+}
+
 /* ========================================
    Edit Controls
    ======================================== */
