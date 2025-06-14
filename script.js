@@ -38,6 +38,7 @@ class SignboardApp {
 		this.updateFrameDelayDisplay();
 		this.initWakeLock();
 		this.initFullscreenListeners();
+		this.handlePWAMode();
 	}
 
 	bindEvents() {
@@ -680,6 +681,20 @@ class SignboardApp {
 		if (btn) {
 			btn.textContent = this.isFullscreen ? '\uE023' : '\uE022';
 			btn.title = this.isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen';
+		}
+	}
+
+	handlePWAMode() {
+		// Detect if app is running in standalone mode (PWA installed)
+		const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+		                     window.navigator.standalone ||
+		                     document.referrer.includes('android-app://');
+		
+		const fullscreenBtn = document.getElementById('fullscreenBtn');
+		if (fullscreenBtn && isStandalone) {
+			// Hide fullscreen button when running as PWA since it's already fullscreen
+			fullscreenBtn.style.display = 'none';
+			console.log('PWA mode detected - hiding fullscreen button');
 		}
 	}
 
