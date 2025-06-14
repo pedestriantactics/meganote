@@ -7,7 +7,6 @@
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<meta name="apple-mobile-web-app-title" content="MegaNote">
-	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="theme-color" content="#000000">
 	<title>MegaNote</title>
 	<script defer src="https://umami.catalystsoftworks.com/script.js" data-website-id="b4d0ffca-a756-4d76-b30c-7bb5257f1a9b"></script>
@@ -20,6 +19,11 @@
 </head>
 
 <body>
+	<!-- Hidden video to keep browser awake -->
+	<video id="keepAwakeVideo" autoplay muted loop style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">
+		<source src="bg-video.mp4" type="video/mp4">
+	</video>
+	
 	<div id="app">
 		<!-- Main Display -->
 		<div id="mainDisplay" class="main-display">
@@ -82,7 +86,7 @@
 						</div>
 						<button id="resetCacheBtn" class="btn reset-cache-btn">Reset</button>
 						<p class="description"><a href="https://pedestriantactics.com">A project by Pedestrian Tactics</a> <br>
-						V1
+						V2
 						</p>
 					</div>
 				</div>

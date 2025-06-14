@@ -20,7 +20,6 @@ class SignboardApp {
 		this.playbackInterval = null;
 		this.storageKey = 'signboardState';
 		this.editingFrames = new Set(); // Track which frames are currently being edited
-		this.wakeLock = null; // Track wake lock
 
 		this.init();
 	}
@@ -31,15 +30,21 @@ class SignboardApp {
 		this.updateDisplay();
 		this.updateControls();
 		this.updateFrameDelayDisplay();
-		
-		// Request wake lock to prevent sleep
-		this.requestWakeLock();
-		
-		// Clean up wake lock when page unloads
-		window.addEventListener('beforeunload', () => {
-			this.releaseWakeLock();
-			this.stopFallbackPreventSleep();
-		});
+		this.ensureKeepAwakeVideo();
+	}
+
+	ensureKeepAwakeVideo() {
+		const video = document.getElementById('keepAwakeVideo');
+		if (video) {
+			// Attempt to play the video to keep the browser awake
+			video.play().catch(err => {
+				console.log('Keep awake video autoplay blocked, will try on user interaction');
+				// If autoplay is blocked, try to play on first user interaction
+				document.addEventListener('click', () => {
+					video.play().catch(e => console.log('Video play failed:', e));
+				}, { once: true });
+			});
+		}
 	}
 
 	bindEvents() {
@@ -528,67 +533,6 @@ class SignboardApp {
 		if (this.playbackInterval) {
 			clearInterval(this.playbackInterval);
 			this.playbackInterval = null;
-		}
-	}
-
-	async requestWakeLock() {
-		try {
-			if ('wakeLock' in navigator) {
-				this.wakeLock = await navigator.wakeLock.request('screen');
-				console.log('Wake lock activated');
-				
-				// Re-request wake lock when page becomes visible again
-				document.addEventListener('visibilitychange', async () => {
-					if (this.wakeLock !== null && document.visibilityState === 'visible') {
-						this.wakeLock = await navigator.wakeLock.request('screen');
-					}
-				});
-			} else {
-				console.log('Wake Lock API not supported');
-				this.fallbackPreventSleep();
-			}
-		} catch (err) {
-			console.error('Failed to activate wake lock:', err);
-			this.fallbackPreventSleep();
-		}
-	}
-
-	releaseWakeLock() {
-		if (this.wakeLock !== null) {
-			this.wakeLock.release();
-			this.wakeLock = null;
-			console.log('Wake lock released');
-		}
-	}
-
-	// Fallback method for older browsers
-	fallbackPreventSleep() {
-		// Create an invisible video element that plays continuously
-		if (!this.keepAwakeVideo) {
-			this.keepAwakeVideo = document.createElement('video');
-			this.keepAwakeVideo.style.position = 'absolute';
-			this.keepAwakeVideo.style.left = '-9999px';
-			this.keepAwakeVideo.style.width = '1px';
-			this.keepAwakeVideo.style.height = '1px';
-			this.keepAwakeVideo.muted = true;
-			this.keepAwakeVideo.loop = true;
-			
-			// Create a minimal video data URL (1x1 pixel, 1 second)
-			this.keepAwakeVideo.src = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMWF2YzEAAAAIZnJlZQAAAGRtZGF0AAACrgYF//+q3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE2NSByMzEwOWJhIDI1MjBlYWEgLSBILjI2NC9NUEVHLTQgQVZDIGNvZGVjIC0gQ29peWxlZnQgMjAwMy0yMDIxIC0gaHR0cDovL3d3dy52aWRlb2xhbi5vcmcveDI2NC5odG1sIC0gb3B0aW9uczogY2FiYWM9MSByZWY9MSBkZWJsb2NrPTE6MDowIGFuYWx5c2U9MHgzOjB4MSBtZT1oZXggc3VibWU9MiBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0wIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0xIHRyZWxsaXM9MCA4eDhkY3Q9MSBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0wIHRocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz0wIHdlaWdodHA9MCBrZXlpbnQ9MjUwIGtleWludF9taW49MjUgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjX2xvb2thaGVhZD0xMCByYz1jcmYgbWJ0cmVlPTEgY3JmPTUxLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4PTY5IHFwc3RlcD00IGlwX3JhdGlvPTEuMjUgYXE9MToxLjAwAIAAAAFZZYiEACD/2lu4BjDG8BUHFvYYRwGJukkDwgJkE+GvOwLJHRRdPJzOTPpHJMYMSHJKzBVNSFjPSQE+yqONSx0XbLaXIKfIUuFRAIDgAwABAAAJOLYBAIAABhWIhAAg/9pbuAYwxvAVBxb2GEcBibpJA8ICZBPhr';
-			
-			document.body.appendChild(this.keepAwakeVideo);
-		}
-		
-		this.keepAwakeVideo.play().catch(err => {
-			console.log('Fallback video play failed:', err);
-		});
-	}
-
-	stopFallbackPreventSleep() {
-		if (this.keepAwakeVideo) {
-			this.keepAwakeVideo.pause();
-			this.keepAwakeVideo.remove();
-			this.keepAwakeVideo = null;
 		}
 	}
 }
