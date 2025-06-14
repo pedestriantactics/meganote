@@ -29,6 +29,7 @@ class SignboardApp {
 		this.bindEvents();
 		this.updateDisplay();
 		this.updateControls();
+		this.updateFrameDelayDisplay();
 	}
 
 	bindEvents() {
@@ -59,9 +60,8 @@ class SignboardApp {
 		document.getElementById('closeFramesBtn').addEventListener('click', () => this.closeFrames());
 		document.getElementById('addFrameBtn').addEventListener('click', () => this.addFrame());
 		document.getElementById('resetCacheBtn').addEventListener('click', () => this.resetCache());
-		document.getElementById('frameDelay').addEventListener('input', (e) => {
-			this.updateFrameDelay(parseFloat(e.target.value));
-		});
+		document.getElementById('decreaseDelayBtn').addEventListener('click', () => this.decreaseFrameDelay());
+		document.getElementById('increaseDelayBtn').addEventListener('click', () => this.increaseFrameDelay());
 	}
 
 	loadState() {
@@ -261,7 +261,7 @@ class SignboardApp {
 	openFrames() {
 		document.getElementById('framesOverlay').style.display = 'flex';
 		this.updateFramesList();
-		document.getElementById('frameDelay').value = this.state.frameDelay;
+		this.updateFrameDelayDisplay();
 	}
 
 	closeFrames() {
@@ -462,8 +462,32 @@ class SignboardApp {
 
 	updateFrameDelay(delay) {
 		if (isNaN(delay)) return;
+		
+		// Clamp the delay between 0.5 and 10
+		delay = Math.max(0.5, Math.min(10, delay));
+		
 		this.state.frameDelay = delay;
+		this.updateFrameDelayDisplay();
 		this.saveState();
+	}
+
+	decreaseFrameDelay() {
+		const currentDelay = this.state.frameDelay;
+		const newDelay = Math.max(0.5, currentDelay - 0.5);
+		this.updateFrameDelay(newDelay);
+	}
+
+	increaseFrameDelay() {
+		const currentDelay = this.state.frameDelay;
+		const newDelay = Math.min(10, currentDelay + 0.5);
+		this.updateFrameDelay(newDelay);
+	}
+
+	updateFrameDelayDisplay() {
+		const frameDelayValue = document.getElementById('frameDelayValue');
+		if (frameDelayValue) {
+			frameDelayValue.textContent = this.state.frameDelay.toString();
+		}
 	}
 
 	togglePlayback() {

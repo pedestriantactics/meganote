@@ -35,7 +35,7 @@
 	--color-inactive: #555555;
 	--vertical-spacing: 2rem;
 	--padding: 1rem;
-	--max-width: 28rem;
+	--max-width: 20rem;
 	font-size: 16pt;
 	background-color: var(--color-bg);
 }
@@ -372,9 +372,27 @@ textarea {
 	margin-bottom: var(--vertical-spacing);
 }
 
-.frame-delay-section label {
-	display: block;
-	margin-bottom: 0.5em;
+.frame-delay-controls {
+	justify-content: space-between;
+	display: flex;
+	align-items: center;
+	gap: 1em;
+}
+
+.frame-delay-controls label {
+	margin: 0;
+	flex-shrink: 0;
+}
+
+.delay-control-group {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+}
+
+.delay-value {
+	width: 2em;
+	text-align: center;
 }
 
 .delay-input {
@@ -466,7 +484,6 @@ textarea {
 	outline: none;
 	border: 1px solid transparent;
 	padding: 0.25em;
-	border-radius: 2px;
 	min-height: 1.2em;
 	cursor: default;
 	word-wrap: break-word;
@@ -476,7 +493,7 @@ textarea {
 
 .frame-preview.editing {
 	border-color: white;
-	background-color: rgba(255, 255, 255, 0.05);
+	/* background-color: rgba(255, 255, 255, 0.05); */
 	cursor: text;
 }
 
