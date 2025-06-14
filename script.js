@@ -20,6 +20,12 @@ class SignboardApp {
 		this.playbackInterval = null;
 		this.storageKey = 'signboardState';
 		this.editingFrames = new Set(); // Track which frames are currently being edited
+		
+		// Wake lock and fullscreen management
+		this.wakeLock = null;
+		this.noSleepVideo = null;
+		this.preventSleepInterval = null;
+		this.isFullscreen = false;
 
 		this.init();
 	}
@@ -30,21 +36,8 @@ class SignboardApp {
 		this.updateDisplay();
 		this.updateControls();
 		this.updateFrameDelayDisplay();
-		this.ensureKeepAwakeVideo();
-	}
-
-	ensureKeepAwakeVideo() {
-		const video = document.getElementById('keepAwakeVideo');
-		if (video) {
-			// Attempt to play the video to keep the browser awake
-			video.play().catch(err => {
-				console.log('Keep awake video autoplay blocked, will try on user interaction');
-				// If autoplay is blocked, try to play on first user interaction
-				document.addEventListener('click', () => {
-					video.play().catch(e => console.log('Video play failed:', e));
-				}, { once: true });
-			});
-		}
+		this.initWakeLock();
+		this.initFullscreenListeners();
 	}
 
 	bindEvents() {
@@ -52,6 +45,7 @@ class SignboardApp {
 		document.getElementById('editBtn').addEventListener('click', () => this.toggleEdit());
 		document.getElementById('settingsBtn').addEventListener('click', () => this.openFrames());
 		document.getElementById('playBtn').addEventListener('click', () => this.togglePlayback());
+		document.getElementById('fullscreenBtn').addEventListener('click', () => this.toggleFullscreen());
 
 		// Edit controls
 		document.getElementById('fontSizeSlider').addEventListener('input', (e) => {
@@ -235,6 +229,9 @@ class SignboardApp {
 
 		// Update edit button
 		document.getElementById('editBtn').textContent = this.state.isEditing ? '\uE001' : '\uE008';
+		
+		// Update fullscreen button
+		this.updateFullscreenButton();
 	}
 
 	toggleEdit() {
@@ -533,6 +530,177 @@ class SignboardApp {
 		if (this.playbackInterval) {
 			clearInterval(this.playbackInterval);
 			this.playbackInterval = null;
+		}
+	}
+
+	// Wake Lock and Screen Management
+	async initWakeLock() {
+		// Try Wake Lock API first (modern browsers)
+		await this.requestWakeLock();
+		
+		// Create invisible video for fallback
+		this.createNoSleepVideo();
+		
+		// Start periodic activity to prevent sleep
+		this.startPreventSleepActivity();
+		
+		// Cleanup on page unload
+		window.addEventListener('beforeunload', () => {
+			this.cleanup();
+		});
+	}
+
+	async requestWakeLock() {
+		try {
+			if ('wakeLock' in navigator) {
+				this.wakeLock = await navigator.wakeLock.request('screen');
+				console.log('Wake lock activated');
+				
+				// Re-request wake lock when page becomes visible again
+				document.addEventListener('visibilitychange', async () => {
+					if (this.wakeLock !== null && document.visibilityState === 'visible') {
+						this.wakeLock = await navigator.wakeLock.request('screen');
+					}
+				});
+			}
+		} catch (err) {
+			console.log('Wake lock failed:', err);
+		}
+	}
+
+	createNoSleepVideo() {
+		// Create invisible video that plays to prevent sleep (NoSleep.js technique)
+		this.noSleepVideo = document.createElement('video');
+		this.noSleepVideo.setAttribute('title', 'No Sleep Video');
+		this.noSleepVideo.setAttribute('playsinline', '');
+		this.noSleepVideo.setAttribute('muted', '');
+		this.noSleepVideo.setAttribute('loop', '');
+		this.noSleepVideo.style.position = 'absolute';
+		this.noSleepVideo.style.left = '-9999px';
+		this.noSleepVideo.style.width = '1px';
+		this.noSleepVideo.style.height = '1px';
+		
+		// Use a minimal base64-encoded video
+		this.noSleepVideo.src = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMWF2YzEAAAAIZnJlZQAABhltZGF0AAACoAYF//+c3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE1NS4yMDIwLCBjb2RlZCBieSBMYXZjNTguNTQuMTAwIC0gaHR0cDovL2xhdmYuZmZtcGVnLm9yZy8AAAFSbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAAvQAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAARFdHJhawAAAFx0a2hkAAAAAwAAAAAAAAAAAAAAAQAAAAAAAAL0AAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAABAAAAAAEAAAABAAAAAAAJGVkdHMAAAAcZWxzdAAAAAAAAAABAAAC9AAAAAAAAQAAAAABAAABSm1kaWEAAAAgbWRoZAAAAAAAAAAAAAAAAAAyAAAAAgBVxAAAAAAANmhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABMLVNNQVNIIFZpZGVvIEhhbmRsZXIAAAABFG1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAANRzdGJsAAAAdHN0c2QAAAAAAAAAAQAAAGRhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAEAAQAEgAAABIAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY//8AAAAadGltZQAAAAAAAAATAAAAAQAAAAEAAAAQc3RzegAAAAAAAAACAAAADwAAAAQAAAAMc3RjbwAAAAAAAAABAAAALAAAAGJ1ZHRhAAAAWm1ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAG1kaXJhcHBsAAAAAAAAAAAAAAAALWlsc3QAAAAlqXRvbwAAAB1kYXRhAAAAAQAAAABMYXZmNTguNDUuMTAw';
+		
+		document.body.appendChild(this.noSleepVideo);
+		
+		// Try to play the video
+		const playPromise = this.noSleepVideo.play();
+		if (playPromise !== undefined) {
+			playPromise.catch(() => {
+				// Autoplay blocked, will try on user interaction
+				document.addEventListener('click', () => {
+					this.noSleepVideo.play().catch(() => {});
+				}, { once: true });
+			});
+		}
+	}
+
+	startPreventSleepActivity() {
+		// Periodically trigger activity to prevent sleep (every 15 seconds)
+		this.preventSleepInterval = setInterval(() => {
+			// Multiple techniques to simulate activity
+			
+			// 1. Briefly change a style property
+			document.body.style.transform = 'translateZ(0)';
+			setTimeout(() => {
+				document.body.style.transform = '';
+			}, 1);
+			
+			// 2. Dispatch a custom event
+			window.dispatchEvent(new Event('resize'));
+			
+			// 3. Update a hidden element
+			let hiddenDiv = document.getElementById('preventSleepDiv');
+			if (!hiddenDiv) {
+				hiddenDiv = document.createElement('div');
+				hiddenDiv.id = 'preventSleepDiv';
+				hiddenDiv.style.position = 'absolute';
+				hiddenDiv.style.left = '-9999px';
+				document.body.appendChild(hiddenDiv);
+			}
+			hiddenDiv.innerHTML = Date.now();
+			
+		}, 15000);
+	}
+
+	// Fullscreen Management
+	initFullscreenListeners() {
+		// Listen for fullscreen changes
+		document.addEventListener('fullscreenchange', () => {
+			this.isFullscreen = !!document.fullscreenElement;
+			this.updateFullscreenButton();
+		});
+		
+		document.addEventListener('webkitfullscreenchange', () => {
+			this.isFullscreen = !!document.webkitFullscreenElement;
+			this.updateFullscreenButton();
+		});
+	}
+
+	async toggleFullscreen() {
+		try {
+			if (!this.isFullscreen) {
+				// Enter fullscreen
+				const element = document.documentElement;
+				if (element.requestFullscreen) {
+					await element.requestFullscreen();
+				} else if (element.webkitRequestFullscreen) {
+					await element.webkitRequestFullscreen();
+				} else if (element.msRequestFullscreen) {
+					await element.msRequestFullscreen();
+				}
+				
+				// Also try to lock screen orientation to current orientation
+				if (screen.orientation && screen.orientation.lock) {
+					try {
+						await screen.orientation.lock('natural');
+					} catch (e) {
+						console.log('Orientation lock failed:', e);
+					}
+				}
+			} else {
+				// Exit fullscreen
+				if (document.exitFullscreen) {
+					await document.exitFullscreen();
+				} else if (document.webkitExitFullscreen) {
+					await document.webkitExitFullscreen();
+				} else if (document.msExitFullscreen) {
+					await document.msExitFullscreen();
+				}
+			}
+		} catch (err) {
+			console.log('Fullscreen toggle failed:', err);
+		}
+	}
+
+	updateFullscreenButton() {
+		const btn = document.getElementById('fullscreenBtn');
+		if (btn) {
+			btn.textContent = this.isFullscreen ? '\uE023' : '\uE022';
+			btn.title = this.isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen';
+		}
+	}
+
+	cleanup() {
+		// Release wake lock
+		if (this.wakeLock) {
+			this.wakeLock.release();
+			this.wakeLock = null;
+		}
+		
+		// Stop video
+		if (this.noSleepVideo) {
+			this.noSleepVideo.pause();
+			this.noSleepVideo.remove();
+			this.noSleepVideo = null;
+		}
+		
+		// Clear interval
+		if (this.preventSleepInterval) {
+			clearInterval(this.preventSleepInterval);
+			this.preventSleepInterval = null;
 		}
 	}
 }

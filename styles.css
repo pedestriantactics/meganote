@@ -173,6 +173,10 @@ textarea {
 	content: '\E021';
 }
 
+.icon-fullscreenIcon::before {
+	content: '\E022';
+}
+
 .arrow-left::before {
 	content: "←";
 }

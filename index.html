@@ -19,11 +19,6 @@
 </head>
 
 <body>
-	<!-- Hidden video to keep browser awake -->
-	<video id="keepAwakeVideo" autoplay muted loop style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">
-		<source src="bg-video.mp4" type="video/mp4">
-	</video>
-	
 	<div id="app">
 		<!-- Main Display -->
 		<div id="mainDisplay" class="main-display">
@@ -36,6 +31,7 @@
 			<button id="editBtn" class="icon-btn" title="Edit"></button>
 			<button id="settingsBtn" class="icon-btn icon-settingsIcon" title="Frame Settings"></button>
 			<button id="playBtn" class="icon-btn" title="Play animation" style="display: none;"></button>
+			<button id="fullscreenBtn" class="icon-btn" title="Enter Fullscreen"></button>
 		</div>
 
 		<!-- Edit Controls -->
@@ -86,7 +82,7 @@
 						</div>
 						<button id="resetCacheBtn" class="btn reset-cache-btn">Reset</button>
 						<p class="description"><a href="https://pedestriantactics.com">A project by Pedestrian Tactics</a> <br>
-						V2
+						V3
 						</p>
 					</div>
 				</div>
