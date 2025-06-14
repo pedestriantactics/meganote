@@ -674,3 +674,35 @@ textarea:focus,
 button:focus {
 	outline: none;
 }
+
+/* ========================================
+   Prevent Zooming
+   ======================================== */
+html, body {
+	/* Prevent zoom on double-tap */
+	touch-action: manipulation;
+	/* Prevent overscroll/bounce effects */
+	overscroll-behavior: none;
+	/* Fixed positioning to prevent zoom behaviors */
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+/* Additional zoom prevention for iOS Safari */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+	select, textarea, input[type="text"], input[type="password"], 
+	input[type="datetime"], input[type="datetime-local"], 
+	input[type="date"], input[type="month"], input[type="time"], 
+	input[type="week"], input[type="number"], input[type="email"], 
+	input[type="url"], input[type="search"], input[type="tel"], 
+	input[type="color"] {
+		font-size: 16px !important;
+	}
+}
+
+/* Prevent zoom on focus for form elements */
+input, select, textarea {
+	font-size: 16px !important;
+}
