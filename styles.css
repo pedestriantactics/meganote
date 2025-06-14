@@ -456,6 +456,33 @@ textarea {
 	margin-bottom: 0.5em;
 }
 
+.frame-controls {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+}
+
+.frame-preview {
+	outline: none;
+	border: 1px solid transparent;
+	padding: 0.25em;
+	border-radius: 2px;
+	min-height: 1.2em;
+	cursor: default;
+}
+
+.frame-preview.editing {
+	border-color: white;
+	background-color: rgba(255, 255, 255, 0.05);
+	cursor: text;
+}
+
+.frame-preview:empty::before {
+	content: 'Empty frame';
+	color: var(--color-inactive);
+	font-style: italic;
+}
+
 .reset-cache-btn {
 	flex-shrink: 1;
 }
