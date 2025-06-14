@@ -469,6 +469,9 @@ textarea {
 	border-radius: 2px;
 	min-height: 1.2em;
 	cursor: default;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	white-space: pre-wrap;
 }
 
 .frame-preview.editing {

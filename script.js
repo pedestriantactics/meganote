@@ -343,8 +343,12 @@ class SignboardApp {
 			const frameItem = document.createElement('div');
 			frameItem.className = `frame-item ${isSelected ? 'selected' : ''}`;
 			frameItem.addEventListener('click', (e) => {
-				// Don't select frame if clicking on the text preview or edit button
-				if (!e.target.classList.contains('frame-preview') && !e.target.classList.contains('edit-frame-btn')) {
+				// Don't select frame if clicking on the edit button, or if clicking on editable text
+				const isEditButton = e.target.classList.contains('edit-frame-btn');
+				const isDeleteButton = e.target.classList.contains('delete-frame-btn');
+				const isEditableText = e.target.classList.contains('frame-preview') && e.target.contentEditable === 'true';
+				
+				if (!isEditButton && !isDeleteButton && !isEditableText) {
 					this.selectFrame(frame.id);
 				}
 			});
