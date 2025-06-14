@@ -16,7 +16,7 @@ class SignboardApp {
 			frameDelay: 1
 		};
 
-		this.maxFrames = 5;
+		this.maxFrames = 20;
 		this.playbackInterval = null;
 		this.storageKey = 'signboardState';
 		this.editingFrames = new Set(); // Track which frames are currently being edited
@@ -402,9 +402,13 @@ class SignboardApp {
 			});
 		});
 
-		// Update add frame button
+		// Update add frame button visibility
 		const addFrameBtn = document.getElementById('addFrameBtn');
-		addFrameBtn.disabled = this.state.frames.length >= this.maxFrames;
+		if (this.state.frames.length >= this.maxFrames) {
+			addFrameBtn.style.display = 'none';
+		} else {
+			addFrameBtn.style.display = 'block';
+		}
 	}
 
 	addFrame() {
