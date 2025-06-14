@@ -706,3 +706,28 @@ html, body {
 input, select, textarea {
 	font-size: 16px !important;
 }
+
+/* ========================================
+   PWA Safe Area Support
+   ======================================== */
+/* Handle safe areas for devices with notches/status bars */
+body {
+	/* Add padding for safe areas */
+	padding-top: env(safe-area-inset-top);
+	padding-bottom: env(safe-area-inset-bottom);
+	padding-left: env(safe-area-inset-left);
+	padding-right: env(safe-area-inset-right);
+}
+
+/* Ensure app container respects safe areas */
+#app {
+	min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+	width: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right));
+}
+
+/* Alternative: If you want fullscreen with manual spacing */
+@supports (padding-top: env(safe-area-inset-top)) {
+	body {
+		padding-top: env(safe-area-inset-top);
+	}
+}

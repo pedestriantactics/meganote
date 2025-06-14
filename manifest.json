@@ -3,7 +3,7 @@
   "short_name": "MegaNote",
   "description": "Put giant words on your screen! Useful for marches, protests, concerts, communicating from a distance, leaving your computer unnatended, etc.",
   "start_url": "/",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#000000",
   "theme_color": "#000000",
   "orientation": "any",
