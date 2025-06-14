@@ -236,9 +236,13 @@ textarea {
 }
 
 .controls {
+	background-color: var(--color-bg);
 	position: fixed;
+	/* top: 0; */
+	/* right: 0; */
 	top: var(--padding);
 	right: var(--padding);
+	/* padding: var(--padding); */
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;
@@ -253,10 +257,11 @@ textarea {
 }
 
 .icon-btn {
+	background: none;
+	/* background-color: var(--color-bg); */
 	width: 1.5rem;
 	height: 1.5rem;
 	font-size: 18pt;
-	background: none;
 	border: none;
 	color: var(--color-fg);
 	cursor: pointer;
