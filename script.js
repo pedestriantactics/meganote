@@ -44,7 +44,7 @@ class SignboardApp {
 	bindEvents() {
 		// Control buttons
 		document.getElementById('editBtn').addEventListener('click', () => this.toggleEdit());
-		document.getElementById('settingsBtn').addEventListener('click', () => this.openFrames());
+		document.getElementById('settingsBtn').addEventListener('click', () => this.handleSettingsClick());
 		document.getElementById('playBtn').addEventListener('click', () => this.togglePlayback());
 		document.getElementById('fullscreenBtn').addEventListener('click', () => this.toggleFullscreen());
 
@@ -220,13 +220,9 @@ class SignboardApp {
 			playBtn.style.display = 'none';
 		}
 
-		// Show/hide settings button (hide when editing)
+		// Settings button stays visible (no longer hidden when editing)
 		const settingsBtn = document.getElementById('settingsBtn');
-		if (this.state.isEditing) {
-			settingsBtn.style.display = 'none';
-		} else {
-			settingsBtn.style.display = 'block';
-		}
+		settingsBtn.style.display = 'block';
 
 		// Update edit button
 		document.getElementById('editBtn').textContent = this.state.isEditing ? '\uE001' : '\uE008';
@@ -269,6 +265,36 @@ class SignboardApp {
 
 		this.updateControls();
 		this.saveState();
+	}
+
+	handleSettingsClick() {
+		if (this.state.isEditing) {
+			// If currently editing, confirm the edit first, then open frames
+			this.confirmEdit();
+		}
+		// Always open frames menu
+		this.openFrames();
+	}
+
+	confirmEdit() {
+		// Save the current text and exit edit mode
+		const textContent = document.getElementById('textContent');
+		const editControls = document.getElementById('editControls');
+		
+		// Save the text
+		this.updateCurrentFrame({ text: textContent.innerText });
+		
+		// Exit edit mode
+		this.state.isEditing = false;
+		textContent.contentEditable = 'false';
+		editControls.style.display = 'none';
+		textContent.blur();
+		
+		// Clear any selection
+		window.getSelection().removeAllRanges();
+		
+		// Update controls to reflect new state
+		this.updateControls();
 	}
 
 	openFrames() {
