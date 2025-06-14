@@ -65,6 +65,25 @@ textarea {
 	/* user-select: none; */
 }
 
+.description {
+	font-family: "Hyperwalk Mono VF", monospace;
+	text-transform: uppercase;
+	font-weight: 72;
+	color: var(--color-fg);
+	font-size: 9pt;
+	letter-spacing: 0.05em;
+	margin-top: 1em;
+}
+
+.description a,
+.description a:visited,
+.description a:active,
+.description a:hover,
+.description a:focus {
+	color: var(--color-fg);
+	text-decoration: none;
+}
+
 /* icons */
 .icon-addIcon::before {
 	content: '\E000';
