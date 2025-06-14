@@ -60,9 +60,17 @@ textarea {
 	/* overflow: hidden; */
 	/* margin: 0; */
 	/* padding: 0; */
-	/* -webkit-touch-callout: none; */
-	/* -webkit-user-select: none; */
-	/* user-select: none; */
+	/* Prevent text selection and touch callouts on all elements by default */
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	/* Prevent drag and drop */
+	-webkit-user-drag: none;
+	-khtml-user-drag: none;
+	-moz-user-drag: none;
+	-o-user-drag: none;
 }
 
 .caption {
@@ -555,4 +563,114 @@ textarea {
 		flex-direction: column;
 		max-width: var(--max-width);
 	}
+}
+
+/* ========================================
+   Allow Selection on Editable Elements
+   ======================================== */
+/* Allow text selection for contenteditable elements */
+[contenteditable="true"],
+[contenteditable]:not([contenteditable="false"]) {
+	-webkit-user-select: text;
+	-moz-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
+	-webkit-touch-callout: default;
+}
+
+/* Allow text selection for input fields and textareas */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="search"],
+input[type="url"],
+textarea {
+	-webkit-user-select: text;
+	-moz-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
+	-webkit-touch-callout: default;
+}
+
+/* Universal rule to prevent selection everywhere else */
+* {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	/* Prevent drag and drop */
+	-webkit-user-drag: none;
+	-khtml-user-drag: none;
+	-moz-user-drag: none;
+	-o-user-drag: none;
+}
+
+/* Re-enable selection for editable elements (overrides universal rule) */
+[contenteditable="true"],
+[contenteditable]:not([contenteditable="false"]),
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="search"],
+input[type="url"],
+textarea {
+	-webkit-user-select: text !important;
+	-moz-user-select: text !important;
+	-ms-user-select: text !important;
+	user-select: text !important;
+	-webkit-touch-callout: default !important;
+}
+
+/* ========================================
+   Touch and Mobile Specific Prevention
+   ======================================== */
+/* Prevent text selection highlighting during touch */
+*::selection {
+	background: transparent;
+}
+
+*::-moz-selection {
+	background: transparent;
+}
+
+/* Allow selection highlighting only for editable content */
+[contenteditable="true"]::selection,
+[contenteditable]:not([contenteditable="false"])::selection,
+input[type="text"]::selection,
+input[type="password"]::selection,
+input[type="email"]::selection,
+input[type="search"]::selection,
+input[type="url"]::selection,
+textarea::selection {
+	background: var(--color-fg);
+	color: var(--color-bg);
+}
+
+[contenteditable="true"]::-moz-selection,
+[contenteditable]:not([contenteditable="false"])::-moz-selection,
+input[type="text"]::-moz-selection,
+input[type="password"]::-moz-selection,
+input[type="email"]::-moz-selection,
+input[type="search"]::-moz-selection,
+input[type="url"]::-moz-selection,
+textarea::-moz-selection {
+	background: var(--color-fg);
+	color: var(--color-bg);
+}
+
+/* Prevent tap highlighting on mobile */
+* {
+	-webkit-tap-highlight-color: transparent;
+	-webkit-focus-ring-color: transparent;
+	outline: none;
+}
+
+/* Re-enable focus indicators for form controls and editable content */
+[contenteditable="true"]:focus,
+[contenteditable]:not([contenteditable="false"]):focus,
+input:focus,
+textarea:focus,
+button:focus {
+	outline: none;
 }
