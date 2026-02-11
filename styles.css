@@ -54,7 +54,7 @@ p,
 button,
 input,
 textarea {
-	font-family: sans-serif;
+	font-family: "EXIF Only VF" sans-serif;
 	font-weight: 75;
 	color: var(--color-fg);
 	/* overflow: hidden; */
