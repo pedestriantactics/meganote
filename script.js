@@ -7,11 +7,11 @@ class SignboardApp {
 			frames: [
 				{
 					id: 0,
-					text: 'Hey',
-					fontSize: 120,
+					text: 'saysomething',
+					fontSize: 128,
 					fontWeight: 400,
 					lineHeight: 1.0,
-					letterSpacing: 0.0
+					letterSpacing: -0.02
 				}
 			],
 			frameDelay: 1
@@ -136,11 +136,11 @@ class SignboardApp {
 					frames: [
 						{
 							id: 0,
-							text: 'Hey',
-							fontSize: 120,
+							text: 'saysomething',
+							fontSize: 128,
 							fontWeight: 400,
 							lineHeight: 1.0,
-							letterSpacing: 0.0
+							letterSpacing: -0.02
 						}
 					],
 					frameDelay: 1
