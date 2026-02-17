@@ -54,8 +54,8 @@ p,
 button,
 input,
 textarea {
-	font-family: "EXIF Only VF", "Hyperwalk VF", sans-serif;
-	font-weight: 75;
+	font-family: "EXIF Only VF", "Helvetica Neue", Helvetica, sans-serif;
+	font-weight: 400;
 	color: var(--color-fg);
 	/* overflow: hidden; */
 	/* margin: 0; */
@@ -76,7 +76,6 @@ textarea {
 .caption {
 	/* font-family: "Hyperwalk Mono VF", monospace; */
 	/* text-transform: uppercase; */
-	font-weight: 70;
 	color: var(--color-fg);
 	font-size: 9pt;
 	line-height: 1.2em;

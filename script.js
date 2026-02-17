@@ -9,8 +9,9 @@ class SignboardApp {
 					id: 0,
 					text: 'Hey',
 					fontSize: 120,
-					fontWeight: 120,
-					letterSpacing: -.07
+					fontWeight: 400,
+					lineHeight: 1.0,
+					letterSpacing: 0.0
 				}
 			],
 			frameDelay: 1
@@ -20,7 +21,7 @@ class SignboardApp {
 		this.playbackInterval = null;
 		this.storageKey = 'signboardState';
 		this.editingFrames = new Set(); // Track which frames are currently being edited
-		
+
 		// Wake lock and fullscreen management
 		this.wakeLock = null;
 		this.noSleepVideo = null;
@@ -57,6 +58,10 @@ class SignboardApp {
 			this.updateCurrentFrame({ fontWeight: parseInt(e.target.value) });
 		});
 
+		document.getElementById('lineHeightSlider').addEventListener('input', (e) => {
+			this.updateCurrentFrame({ lineHeight: parseFloat(e.target.value) });
+		});
+
 		document.getElementById('letterSpacingSlider').addEventListener('input', (e) => {
 			this.updateCurrentFrame({ letterSpacing: parseFloat(e.target.value) });
 		});
@@ -86,10 +91,10 @@ class SignboardApp {
 					isPlaying: false
 				};
 
-				// Migrate existing frames to include fontWeight if missing
+				// Migrate existing frames to include lineHeight if missing
 				this.state.frames = this.state.frames.map(frame => ({
 					...frame,
-					fontWeight: frame.fontWeight || 80
+					lineHeight: frame.lineHeight || 1.0
 				}));
 			}
 		} catch (error) {
@@ -133,8 +138,9 @@ class SignboardApp {
 							id: 0,
 							text: 'Hey',
 							fontSize: 120,
-							fontWeight: 120,
-							letterSpacing: -.07
+							fontWeight: 400,
+							lineHeight: 1.0,
+							letterSpacing: 0.0
 						}
 					],
 					frameDelay: 1
@@ -193,6 +199,7 @@ class SignboardApp {
 		const style = {
 			fontSize: `${frame.fontSize}pt`,
 			fontWeight: frame.fontWeight,
+			lineHeight: frame.lineHeight,
 			letterSpacing: `${frame.letterSpacing}em`
 		};
 
@@ -203,6 +210,8 @@ class SignboardApp {
 		document.getElementById('fontSizeValue').textContent = frame.fontSize;
 		document.getElementById('fontWeightSlider').value = frame.fontWeight;
 		document.getElementById('fontWeightValue').textContent = frame.fontWeight;
+		document.getElementById('lineHeightSlider').value = frame.lineHeight;
+		document.getElementById('lineHeightValue').textContent = frame.lineHeight;
 		document.getElementById('letterSpacingSlider').value = frame.letterSpacing;
 		document.getElementById('letterSpacingValue').textContent = frame.letterSpacing;
 	}
@@ -226,7 +235,7 @@ class SignboardApp {
 
 		// Update edit button
 		document.getElementById('editBtn').textContent = this.state.isEditing ? '\uE001' : '\uE008';
-		
+
 		// Update fullscreen button
 		this.updateFullscreenButton();
 	}
@@ -280,19 +289,19 @@ class SignboardApp {
 		// Save the current text and exit edit mode
 		const textContent = document.getElementById('textContent');
 		const editControls = document.getElementById('editControls');
-		
+
 		// Save the text
 		this.updateCurrentFrame({ text: textContent.innerText });
-		
+
 		// Exit edit mode
 		this.state.isEditing = false;
 		textContent.contentEditable = 'false';
 		editControls.style.display = 'none';
 		textContent.blur();
-		
+
 		// Clear any selection
 		window.getSelection().removeAllRanges();
-		
+
 		// Update controls to reflect new state
 		this.updateControls();
 	}
@@ -342,14 +351,14 @@ class SignboardApp {
 	toggleFrameEdit(frameId) {
 		const frameElement = document.querySelector(`.frame-preview[data-frame-id="${frameId}"]`);
 		const editBtn = document.querySelector(`.edit-frame-btn[data-frame-id="${frameId}"]`);
-		
+
 		if (!frameElement || !editBtn) return;
 
 		if (this.editingFrames.has(frameId)) {
 			// Save and exit edit mode
 			this.saveFrameText(frameId);
 			this.editingFrames.delete(frameId);
-			
+
 			frameElement.contentEditable = 'false';
 			frameElement.classList.remove('editing');
 			editBtn.textContent = '\uE008'; // Edit icon
@@ -357,12 +366,12 @@ class SignboardApp {
 		} else {
 			// Enter edit mode
 			this.editingFrames.add(frameId);
-			
+
 			frameElement.contentEditable = 'true';
 			frameElement.classList.add('editing');
 			editBtn.textContent = '\uE001'; // Check icon
 			frameElement.focus();
-			
+
 			// Select all text for easier editing
 			const range = document.createRange();
 			range.selectNodeContents(frameElement);
@@ -386,7 +395,7 @@ class SignboardApp {
 				const isEditButton = e.target.classList.contains('edit-frame-btn');
 				const isDeleteButton = e.target.classList.contains('delete-frame-btn');
 				const isEditableText = e.target.classList.contains('frame-preview') && e.target.contentEditable === 'true';
-				
+
 				if (!isEditButton && !isDeleteButton && !isEditableText) {
 					this.selectFrame(frame.id);
 				}
@@ -419,11 +428,11 @@ class SignboardApp {
 
 			// Add event listeners for the frame preview when editing
 			const framePreview = frameItem.querySelector('.frame-preview');
-			
+
 			// Handle keyboard shortcuts when editing
 			framePreview.addEventListener('keydown', (e) => {
 				if (!isEditing) return;
-				
+
 				if (e.key === 'Enter') {
 					e.preventDefault();
 					this.toggleFrameEdit(frame.id); // Save and exit
@@ -459,6 +468,7 @@ class SignboardApp {
 			text: currentFrame.text,
 			fontSize: currentFrame.fontSize,
 			fontWeight: currentFrame.fontWeight,
+			lineHeight: currentFrame.lineHeight,
 			letterSpacing: currentFrame.letterSpacing
 		};
 
@@ -501,10 +511,10 @@ class SignboardApp {
 
 	updateFrameDelay(delay) {
 		if (isNaN(delay)) return;
-		
+
 		// Clamp the delay between 0.5 and 10
 		delay = Math.max(0.5, Math.min(10, delay));
-		
+
 		this.state.frameDelay = delay;
 		this.updateFrameDelayDisplay();
 		this.saveState();
@@ -564,13 +574,13 @@ class SignboardApp {
 	async initWakeLock() {
 		// Try Wake Lock API first (modern browsers)
 		await this.requestWakeLock();
-		
+
 		// Create invisible video for fallback
 		this.createNoSleepVideo();
-		
+
 		// Start periodic activity to prevent sleep
 		this.startPreventSleepActivity();
-		
+
 		// Cleanup on page unload
 		window.addEventListener('beforeunload', () => {
 			this.cleanup();
@@ -582,7 +592,7 @@ class SignboardApp {
 			if ('wakeLock' in navigator) {
 				this.wakeLock = await navigator.wakeLock.request('screen');
 				console.log('Wake lock activated');
-				
+
 				// Re-request wake lock when page becomes visible again
 				document.addEventListener('visibilitychange', async () => {
 					if (this.wakeLock !== null && document.visibilityState === 'visible') {
@@ -606,19 +616,19 @@ class SignboardApp {
 		this.noSleepVideo.style.left = '-9999px';
 		this.noSleepVideo.style.width = '1px';
 		this.noSleepVideo.style.height = '1px';
-		
+
 		// Use a minimal base64-encoded video
 		this.noSleepVideo.src = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMWF2YzEAAAAIZnJlZQAABhltZGF0AAACoAYF//+c3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE1NS4yMDIwLCBjb2RlZCBieSBMYXZjNTguNTQuMTAwIC0gaHR0cDovL2xhdmYuZmZtcGVnLm9yZy8AAAFSbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAAvQAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAARFdHJhawAAAFx0a2hkAAAAAwAAAAAAAAAAAAAAAQAAAAAAAAL0AAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAABAAAAAAEAAAABAAAAAAAJGVkdHMAAAAcZWxzdAAAAAAAAAABAAAC9AAAAAAAAQAAAAABAAABSm1kaWEAAAAgbWRoZAAAAAAAAAAAAAAAAAAyAAAAAgBVxAAAAAAANmhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABMLVNNQVNIIFZpZGVvIEhhbmRsZXIAAAABFG1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAANRzdGJsAAAAdHN0c2QAAAAAAAAAAQAAAGRhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAEAAQAEgAAABIAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY//8AAAAadGltZQAAAAAAAAATAAAAAQAAAAEAAAAQc3RzegAAAAAAAAACAAAADwAAAAQAAAAMc3RjbwAAAAAAAAABAAAALAAAAGJ1ZHRhAAAAWm1ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAG1kaXJhcHBsAAAAAAAAAAAAAAAALWlsc3QAAAAlqXRvbwAAAB1kYXRhAAAAAQAAAABMYXZmNTguNDUuMTAw';
-		
+
 		document.body.appendChild(this.noSleepVideo);
-		
+
 		// Try to play the video
 		const playPromise = this.noSleepVideo.play();
 		if (playPromise !== undefined) {
 			playPromise.catch(() => {
 				// Autoplay blocked, will try on user interaction
 				document.addEventListener('click', () => {
-					this.noSleepVideo.play().catch(() => {});
+					this.noSleepVideo.play().catch(() => { });
 				}, { once: true });
 			});
 		}
@@ -628,16 +638,16 @@ class SignboardApp {
 		// Periodically trigger activity to prevent sleep (every 15 seconds)
 		this.preventSleepInterval = setInterval(() => {
 			// Multiple techniques to simulate activity
-			
+
 			// 1. Briefly change a style property
 			document.body.style.transform = 'translateZ(0)';
 			setTimeout(() => {
 				document.body.style.transform = '';
 			}, 1);
-			
+
 			// 2. Dispatch a custom event
 			window.dispatchEvent(new Event('resize'));
-			
+
 			// 3. Update a hidden element
 			let hiddenDiv = document.getElementById('preventSleepDiv');
 			if (!hiddenDiv) {
@@ -648,7 +658,7 @@ class SignboardApp {
 				document.body.appendChild(hiddenDiv);
 			}
 			hiddenDiv.innerHTML = Date.now();
-			
+
 		}, 15000);
 	}
 
@@ -659,7 +669,7 @@ class SignboardApp {
 			this.isFullscreen = !!document.fullscreenElement;
 			this.updateFullscreenButton();
 		});
-		
+
 		document.addEventListener('webkitfullscreenchange', () => {
 			this.isFullscreen = !!document.webkitFullscreenElement;
 			this.updateFullscreenButton();
@@ -678,7 +688,7 @@ class SignboardApp {
 				} else if (element.msRequestFullscreen) {
 					await element.msRequestFullscreen();
 				}
-				
+
 				// Also try to lock screen orientation to current orientation
 				if (screen.orientation && screen.orientation.lock) {
 					try {
@@ -713,9 +723,9 @@ class SignboardApp {
 	handlePWAMode() {
 		// Detect if app is running in standalone mode (PWA installed)
 		const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-		                     window.navigator.standalone ||
-		                     document.referrer.includes('android-app://');
-		
+			window.navigator.standalone ||
+			document.referrer.includes('android-app://');
+
 		const fullscreenBtn = document.getElementById('fullscreenBtn');
 		if (fullscreenBtn && isStandalone) {
 			// Hide fullscreen button when running as PWA since it's already fullscreen
@@ -730,14 +740,14 @@ class SignboardApp {
 			this.wakeLock.release();
 			this.wakeLock = null;
 		}
-		
+
 		// Stop video
 		if (this.noSleepVideo) {
 			this.noSleepVideo.pause();
 			this.noSleepVideo.remove();
 			this.noSleepVideo = null;
 		}
-		
+
 		// Clear interval
 		if (this.preventSleepInterval) {
 			clearInterval(this.preventSleepInterval);
