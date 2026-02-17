@@ -7,8 +7,8 @@ class SignboardApp {
 			frames: [
 				{
 					id: 0,
-					text: 'saysomething',
-					fontSize: 128,
+					text: 'say something',
+					fontSize: 118,
 					fontWeight: 400,
 					lineHeight: 1.0,
 					letterSpacing: -0.02
@@ -136,8 +136,8 @@ class SignboardApp {
 					frames: [
 						{
 							id: 0,
-							text: 'saysomething',
-							fontSize: 128,
+							text: 'say something',
+							fontSize: 118,
 							fontWeight: 400,
 							lineHeight: 1.0,
 							letterSpacing: -0.02
