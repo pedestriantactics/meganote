@@ -1,29 +1,31 @@
+const createInitialState = () => ({
+	isEditing: false,
+	isPlaying: false,
+	currentFrameIndex: 0,
+	frames: [
+		{
+			id: 0,
+			text: 'Make words',
+			fontSize: 118,
+			fontWeight: 400,
+			lineHeight: 1.0,
+			letterSpacing: -0.02
+		},
+		{
+			id: 0,
+			text: 'not war',
+			fontSize: 118,
+			fontWeight: 400,
+			lineHeight: 1.0,
+			letterSpacing: -0.02
+		}
+	],
+	frameDelay: 1
+});
+
 class SignboardApp {
 	constructor() {
-		this.state = {
-			isEditing: false,
-			isPlaying: false,
-			currentFrameIndex: 0,
-			frames: [
-				{
-					id: 0,
-					text: 'Make words',
-					fontSize: 118,
-					fontWeight: 400,
-					lineHeight: 1.0,
-					letterSpacing: -0.02
-				},
-				{
-					id: 0,
-					text: 'not war',
-					fontSize: 118,
-					fontWeight: 400,
-					lineHeight: 1.0,
-					letterSpacing: -0.02
-				}
-			],
-			frameDelay: 1
-		};
+		this.state = createInitialState();
 
 		this.maxFrames = 20;
 		this.playbackInterval = null;
@@ -137,30 +139,7 @@ class SignboardApp {
 				localStorage.removeItem(this.storageKey);
 
 				// Reset to initial state
-				this.state = {
-					isEditing: false,
-					isPlaying: false,
-					currentFrameIndex: 0,
-					frames: [
-						{
-							id: 0,
-							text: 'Make words',
-							fontSize: 118,
-							fontWeight: 400,
-							lineHeight: 1.0,
-							letterSpacing: -0.02
-						},
-						{
-							id: 0,
-							text: 'not war',
-							fontSize: 118,
-							fontWeight: 400,
-							lineHeight: 1.0,
-							letterSpacing: -0.02
-						}
-					],
-					frameDelay: 1
-				};
+				this.state = createInitialState();
 
 				// Stop any playback
 				if (this.playbackInterval) {
@@ -177,7 +156,6 @@ class SignboardApp {
 				this.closeFrames();
 
 				console.log('Reset cache completed successfully');
-
 			} catch (error) {
 				console.error('Failed to reset cache:', error);
 			}
