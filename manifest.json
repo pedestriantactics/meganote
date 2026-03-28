@@ -1,6 +1,6 @@
 {
-  "name": "MegaNote",
-  "short_name": "MegaNote",
+  "name": "Make words not war",
+  "short_name": "Words",
   "description": "Put giant words on your screen! Useful for marches, protests, concerts, communicating from a distance, leaving your computer unnatended, etc.",
   "start_url": "/",
   "display": "fullscreen",

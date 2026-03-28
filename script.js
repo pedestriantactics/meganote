@@ -7,7 +7,15 @@ class SignboardApp {
 			frames: [
 				{
 					id: 0,
-					text: 'say something',
+					text: 'Make words',
+					fontSize: 118,
+					fontWeight: 400,
+					lineHeight: 1.0,
+					letterSpacing: -0.02
+				},
+				{
+					id: 0,
+					text: 'not war',
 					fontSize: 118,
 					fontWeight: 400,
 					lineHeight: 1.0,
@@ -136,7 +144,15 @@ class SignboardApp {
 					frames: [
 						{
 							id: 0,
-							text: 'say something',
+							text: 'Make words',
+							fontSize: 118,
+							fontWeight: 400,
+							lineHeight: 1.0,
+							letterSpacing: -0.02
+						},
+						{
+							id: 0,
+							text: 'not war',
 							fontSize: 118,
 							fontWeight: 400,
 							lineHeight: 1.0,
