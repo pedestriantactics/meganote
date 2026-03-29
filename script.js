@@ -6,7 +6,7 @@ const createInitialState = () => ({
 		{
 			id: 0,
 			text: 'Make words',
-			fontSize: 118,
+			fontSize: 100,
 			fontWeight: 400,
 			lineHeight: 1.0,
 			letterSpacing: -0.02
@@ -14,7 +14,7 @@ const createInitialState = () => ({
 		{
 			id: 1,
 			text: 'not war',
-			fontSize: 118,
+			fontSize: 100,
 			fontWeight: 400,
 			lineHeight: 1.0,
 			letterSpacing: -0.02
