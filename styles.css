@@ -129,6 +129,11 @@ textarea {
 	content: '\E008';
 }
 
+.icon-controlsIcon::before {
+	content: '🎚️';
+}
+
+
 .icon-sunIcon::before {
 	content: '\E009';
 }
@@ -240,6 +245,14 @@ textarea {
 	color: var(--color-fg);
 	cursor: pointer;
 	font-size: inherit;
+}
+
+.small-button {
+	border: none;
+	font-size: 8pt;
+	text-transform: uppercase;
+	letter-spacing: .1em;
+	padding: 0.2rem 0.3rem;
 }
 
 .controls {

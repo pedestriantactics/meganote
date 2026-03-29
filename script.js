@@ -12,7 +12,7 @@ const createInitialState = () => ({
 			letterSpacing: -0.02
 		},
 		{
-			id: 0,
+			id: 1,
 			text: 'not war',
 			fontSize: 118,
 			fontWeight: 400,
@@ -54,10 +54,14 @@ class SignboardApp {
 
 	bindEvents() {
 		// Control buttons
-		document.getElementById('editBtn').addEventListener('click', () => this.toggleEdit());
+		document.getElementById('editBtn').addEventListener('click', () => this.promptTextEdit());
+		document.getElementById('controlsBtn').addEventListener('click', () => this.toggleControlsPanel());
 		document.getElementById('settingsBtn').addEventListener('click', () => this.handleSettingsClick());
 		document.getElementById('playBtn').addEventListener('click', () => this.togglePlayback());
-		document.getElementById('fullscreenBtn').addEventListener('click', () => this.toggleFullscreen());
+		const fullscreenBtn = document.getElementById('fullscreenBtn');
+		if (fullscreenBtn) {
+			fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+		}
 
 		// Edit controls
 		document.getElementById('fontSizeSlider').addEventListener('input', (e) => {
@@ -101,11 +105,20 @@ class SignboardApp {
 					isPlaying: false
 				};
 
-				// Migrate existing frames to include lineHeight if missing
-				this.state.frames = this.state.frames.map(frame => ({
+			// Migrate existing frames to include lineHeight if missing and ensure unique IDs
+			const usedIds = new Set();
+			this.state.frames = this.state.frames.map((frame, index) => {
+				let id = frame.id;
+				while (id == null || usedIds.has(id)) {
+					id = id == null ? index : id + 1;
+				}
+				usedIds.add(id);
+				return {
 					...frame,
+					id,
 					lineHeight: frame.lineHeight || 1.0
-				}));
+				};
+			});
 			}
 		} catch (error) {
 			console.error('Failed to load state:', error);
@@ -227,47 +240,34 @@ class SignboardApp {
 		const settingsBtn = document.getElementById('settingsBtn');
 		settingsBtn.style.display = 'block';
 
-		// Update edit button
-		document.getElementById('editBtn').textContent = this.state.isEditing ? '\uE001' : '\uE008';
+		const controlsBtn = document.getElementById('controlsBtn');
+		const editControls = document.getElementById('editControls');
+		const controlsVisible = editControls && getComputedStyle(editControls).display !== 'none';
+		if (controlsBtn) {
+			controlsBtn.textContent = controlsVisible ? 'Hide Controls' : 'Controls';
+		}
 
 		// Update fullscreen button
 		this.updateFullscreenButton();
 	}
 
-	toggleEdit() {
-		this.state.isEditing = !this.state.isEditing;
-
-		if (this.state.isEditing && this.state.isPlaying) {
-			this.stopPlayback();
+promptTextEdit() {
+			const frame = this.getCurrentFrame();
+			const currentText = frame.text || '';
+			const newText = prompt('Enter text for the current frame:', currentText);
+			if (newText !== null) {
+				this.updateCurrentFrame({ text: newText });
+			}
 		}
 
-		// Toggle edit controls and contenteditable
-		const textContent = document.getElementById('textContent');
-		const editControls = document.getElementById('editControls');
+		toggleControlsPanel() {
+			const editControls = document.getElementById('editControls');
+			const controlsBtn = document.getElementById('controlsBtn');
+			if (!editControls || !controlsBtn) return;
 
-		if (this.state.isEditing) {
-			textContent.contentEditable = 'true';
-			editControls.style.display = 'block';
-			textContent.focus();
-			// Select all text for easier editing
-			const range = document.createRange();
-			range.selectNodeContents(textContent);
-			const selection = window.getSelection();
-			selection.removeAllRanges();
-			selection.addRange(range);
-		} else {
-			// Save the text when exiting edit mode
-			this.updateCurrentFrame({ text: textContent.innerText });
-
-			textContent.contentEditable = 'false';
-			editControls.style.display = 'none';
-			textContent.blur();
-			// Clear any selection
-			window.getSelection().removeAllRanges();
-		}
-
-		this.updateControls();
-		this.saveState();
+			const isVisible = editControls.style.display === 'block';
+			editControls.style.display = isVisible ? 'none' : 'block';
+			controlsBtn.textContent = isVisible ? 'Controls' : 'Hide Controls';
 	}
 
 	handleSettingsClick() {
@@ -342,36 +342,17 @@ class SignboardApp {
 		this.saveState();
 	}
 
-	toggleFrameEdit(frameId) {
-		const frameElement = document.querySelector(`.frame-preview[data-frame-id="${frameId}"]`);
-		const editBtn = document.querySelector(`.edit-frame-btn[data-frame-id="${frameId}"]`);
+	promptFrameText(frameId) {
+		const frame = this.state.frames.find(f => f.id === frameId);
+		if (!frame) return;
 
-		if (!frameElement || !editBtn) return;
-
-		if (this.editingFrames.has(frameId)) {
-			// Save and exit edit mode
-			this.saveFrameText(frameId);
-			this.editingFrames.delete(frameId);
-
-			frameElement.contentEditable = 'false';
-			frameElement.classList.remove('editing');
-			editBtn.textContent = '\uE008'; // Edit icon
-			frameElement.blur();
-		} else {
-			// Enter edit mode
-			this.editingFrames.add(frameId);
-
-			frameElement.contentEditable = 'true';
-			frameElement.classList.add('editing');
-			editBtn.textContent = '\uE001'; // Check icon
-			frameElement.focus();
-
-			// Select all text for easier editing
-			const range = document.createRange();
-			range.selectNodeContents(frameElement);
-			const selection = window.getSelection();
-			selection.removeAllRanges();
-			selection.addRange(range);
+		const currentText = frame.text || '';
+		const newText = prompt('Enter text for frame ' + (this.state.frames.findIndex(f => f.id === frameId) + 1) + ':', currentText);
+		if (newText !== null) {
+			frame.text = newText;
+			this.updateDisplay();
+			this.updateFramesList();
+			this.saveState();
 		}
 	}
 
@@ -381,16 +362,13 @@ class SignboardApp {
 
 		this.state.frames.forEach((frame, index) => {
 			const isSelected = index === this.state.currentFrameIndex;
-			const isEditing = this.editingFrames.has(frame.id);
 			const frameItem = document.createElement('div');
 			frameItem.className = `frame-item ${isSelected ? 'selected' : ''}`;
 			frameItem.addEventListener('click', (e) => {
-				// Don't select frame if clicking on the edit button, or if clicking on editable text
 				const isEditButton = e.target.classList.contains('edit-frame-btn');
-				const isDeleteButton = e.target.classList.contains('delete-frame-btn');
-				const isEditableText = e.target.classList.contains('frame-preview') && e.target.contentEditable === 'true';
+			const isDeleteButton = e.target.classList.contains('delete-frame-btn');
 
-				if (!isEditButton && !isDeleteButton && !isEditableText) {
+				if (!isEditButton && !isDeleteButton) {
 					this.selectFrame(frame.id);
 				}
 			});
@@ -399,48 +377,22 @@ class SignboardApp {
                 <div class="frame-item-header">
                     <div class="frame-title">${index + 1}</div>
                     <div class="frame-controls">
-                        <button class="icon-btn edit-frame-btn" 
+                        <button class="btn small-button edit-frame-btn" 
                                 data-frame-id="${frame.id}"
-                                title="${isEditing ? 'Save' : 'Edit'}">${isEditing ? '\uE001' : '\uE008'}</button>
+                                title="Edit">Edit</button>
                         ${this.state.frames.length > 1 ? `<button class="icon-btn delete-frame-btn icon-trashIcon" onclick="event.stopPropagation(); app.deleteFrame(${frame.id})" title="Delete Frame"></button>` : ''}
                     </div>
                 </div>
-                <div class="frame-preview ${isEditing ? 'editing' : ''}" 
-                     contenteditable="${isEditing ? 'true' : 'false'}" 
-                     data-frame-id="${frame.id}"
-                     data-original-text="${frame.text || ''}">${frame.text || 'Empty frame'}</div>
+                <div class="frame-preview" 
+                     data-frame-id="${frame.id}">${frame.text || 'Empty frame'}</div>
             `;
 
 			framesList.appendChild(frameItem);
 
-			// Add event listener for the edit button
 			const editBtn = frameItem.querySelector('.edit-frame-btn');
 			editBtn.addEventListener('click', (e) => {
 				e.stopPropagation();
-				this.toggleFrameEdit(frame.id);
-			});
-
-			// Add event listeners for the frame preview when editing
-			const framePreview = frameItem.querySelector('.frame-preview');
-
-			// Handle keyboard shortcuts when editing
-			framePreview.addEventListener('keydown', (e) => {
-				if (!isEditing) return;
-
-				if (e.key === 'Enter') {
-					e.preventDefault();
-					this.toggleFrameEdit(frame.id); // Save and exit
-				} else if (e.key === 'Escape') {
-					e.preventDefault();
-					// Revert to original text and exit editing mode
-					const originalText = framePreview.getAttribute('data-original-text');
-					framePreview.textContent = originalText || 'Empty frame';
-					this.editingFrames.delete(frame.id);
-					framePreview.contentEditable = 'false';
-					framePreview.classList.remove('editing');
-					editBtn.textContent = '\uE008'; // Edit icon
-					framePreview.blur();
-				}
+				this.promptFrameText(frame.id);
 			});
 		});
 
